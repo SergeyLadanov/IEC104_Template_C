@@ -1,0 +1,42 @@
+
+
+#include "iec104_model.h"
+
+// Создание структуры данных
+IEC104_CREATE_DATA_SET(Flags, 2) = {
+		{1000},
+		{1001}
+};
+
+
+IEC104_CREATE_DATA_SET(iec104values, 12) = {
+		{8192},
+		{8193},
+		{8194},
+		{8195},
+		{8196},
+		{8197},
+		{8198},
+		{8199},
+		{8200},
+		{8201},
+		{8202},
+		{8203},
+};
+
+
+//----------------------------------------------
+iec104_asduBlock iec104Model[2] = {
+		{ASDU_ADR, M_SP_NA_1, &Flags},
+		{ASDU_ADR, M_ME_NC_1, &iec104values}
+};
+
+
+//----------------------------------------
+void iec104_model_init(void)
+{
+	IEC104_INIT_DATA_SET(Flags);
+	IEC104_INIT_DATA_SET(iec104values);
+	IEC104_INIT_ASDU(iec104Model);
+
+}

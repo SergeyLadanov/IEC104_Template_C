@@ -238,7 +238,7 @@ uint8_t* iec104_write_value(iec104_objTypeDef *obj, uint8_t Idt, uint8_t *buf, E
 
 uint8_t get_base_data(iec104_objTypeDef *obj, uint8_t Idt, uint8_t *buf, uint8_t num)
 {
-	ErrorStatus stat_request = SUCCESS;
+	ErrorStatus stat_request = SUCCESS_104;
 //	uint32_t addr_desc;
 	uint8_t   length = 0;
 

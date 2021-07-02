@@ -2,8 +2,12 @@
 #include <stdlib.h>
 #include <winsock.h>
 #include <stdbool.h>
+#include "iec104.h"
+#include "iec104_model.h"
 
 #define BUFFER_SIZE 1024
+
+iec_104_propTypeDef iecProp;
 
 void on_error(char *s, int *errCode)
 {
@@ -17,8 +21,10 @@ int main(int argc, char *argv[])
     WSADATA wsadata; 
     SOCKET server_fd, client_fd;
     struct sockaddr_in server, client;
-    int port = 5001, err; 
+    int port = 2404, err; 
     char buf[BUFFER_SIZE];
+
+    iec104_model_init();
 
     err = WSAStartup(MAKEWORD(2,2), &wsadata);
     if (err != 0)
@@ -58,6 +64,17 @@ int main(int argc, char *argv[])
         {
             int read = recv(client_fd, buf, BUFFER_SIZE, 0);
 
+            uint8_t txData[1024];
+
+            iec104_SetDataBuffer(&iecProp.RxBuf, (uint8_t *) buf, read);
+            iec104_AttachBuffer(&iecProp.TxBuf, txData, 1024);
+            iec104_PacketHandler(&iecProp);
+
+            // if (iecProp.TxBuf.Len > 0)
+            // {
+            //     sendRepply(iecProp.TxBuf.Data, iecProp.TxBuf.Len);
+            // }
+
             if (read == 0)
                 break;
 
@@ -72,7 +89,7 @@ int main(int argc, char *argv[])
             char *pbuf = buf;
             do
             {
-                int sent = send(client_fd, pbuf, read, 0);
+                int sent = send(client_fd, (char *) iecProp.TxBuf.Data, iecProp.TxBuf.Len, 0);
                 if (sent == SOCKET_ERROR)
                 {
                     err = WSAGetLastError();

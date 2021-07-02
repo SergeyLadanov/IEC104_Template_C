@@ -179,8 +179,8 @@ typedef struct{
 
 typedef enum
 {
-  SUCCESS = 0U,
-  ERROR = !SUCCESS
+  SUCCESS_104 = 0U,
+  ERROR_104 = !SUCCESS_104
 } ErrorStatus;
 
 typedef struct {

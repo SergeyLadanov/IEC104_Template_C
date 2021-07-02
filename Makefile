@@ -46,6 +46,7 @@ CPP_FILE_EXTENSION = .cpp
 # C sources
 C_SOURCES =  \
 Core/Src/main.c  \
+Core/Src/iec104_model.c  \
 Middlewares/IEC104/Src/iec104.c
 
 # CPP sources
