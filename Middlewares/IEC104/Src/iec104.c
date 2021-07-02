@@ -394,3 +394,29 @@ void iec_104_read(iec_104_propTypeDef *iec104_prop)
 	}
 
 }
+
+// Данные циклической передачи
+void iec104_sporadic_prepare(iec_104_propTypeDef *iec104_prop)
+{
+	uint8_t dataBuf[512];
+	iec_104_hdr *iec_104_pkt = (iec_104_hdr *) iec104_prop->TxBuf.Data;
+
+	asdu_hdr_typeDef *asdu_pkt = (void*)iec_104_pkt->asdu;
+
+	asdu_prepare(asdu_pkt, C_IC_NA_1, ASDU_ADDR_1, SQ_FALSE, 7, 0, 1);
+
+	uint8_t len = 0;
+	for (uint8_t i = 0; i < iec104Data.Capacity; i++)
+	{
+
+		len = group_data_prepare(iec104_prop, dataBuf, &iec104Data.Data[i],20);
+		iec104_CopyDataToBuffer(&iec104_prop->TxBuf, dataBuf, len);
+	}
+
+	len += sizeof(iec_104_hdr); //добавляется к общей длине пакета размер заголовка пакета
+	iec_104_packet_prepare(iec_104_pkt, I_TYPE, len - 2); //Ставится тип пакета, и длина
+	apci_prepare(iec104_prop, iec_104_pkt); // подготовка поля apci
+
+	iec104_CopyDataToBuffer(&iec104_prop->TxBuf, dataBuf, len);
+
+}
