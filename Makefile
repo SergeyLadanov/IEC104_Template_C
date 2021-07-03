@@ -127,7 +127,7 @@ CPP_FLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 LDSCRIPT = 
 
 # libraries
-LIBS = -lws2_32 -lwsock32 
+LIBS = -lws2_32 -lwsock32 -lpthread
 LIBDIR = 
 LDFLAGS = $(LIBDIR) $(LIBS)
 

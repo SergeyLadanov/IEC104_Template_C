@@ -4,8 +4,13 @@
 #include <stdbool.h>
 #include "iec104.h"
 #include "iec104_model.h"
+#include <pthread.h>
 
 #define BUFFER_SIZE 1024
+
+#define ERROR_CREATE_THREAD -11
+#define ERROR_JOIN_THREAD   -12
+#define SUCCESS        0
 
 iec_104_propTypeDef iecProp;
 
@@ -16,6 +21,14 @@ void on_error(char *s, int *errCode)
     exit(1);
 }
 
+
+void* iec104_cyclic_handle(void *args)
+{
+    printf("Thread was started\r\n");
+
+    return SUCCESS;
+}
+
 int main(int argc, char *argv[])
 {
     WSADATA wsadata; 
@@ -23,6 +36,16 @@ int main(int argc, char *argv[])
     struct sockaddr_in server, client;
     int port = 2404, err; 
     char buf[BUFFER_SIZE];
+
+    pthread_t thread;
+	int status;
+
+    status = pthread_create(&thread, NULL, iec104_cyclic_handle, NULL);
+
+    if (status != 0) {
+		printf("main error: can't create thread, status = %d\n", status);
+		exit(ERROR_CREATE_THREAD);
+	}
 
     iec104_model_init();
 
