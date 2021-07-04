@@ -5,6 +5,7 @@
 #include "iec104.h"
 #include "iec104_model.h"
 #include <pthread.h>
+#include <unistd.h>
 
 #define BUFFER_SIZE 1024
 
@@ -13,6 +14,7 @@
 #define SUCCESS        0
 
 iec_104_propTypeDef iecProp;
+static SOCKET client_fd;
 
 void on_error(char *s, int *errCode)
 {
@@ -21,10 +23,30 @@ void on_error(char *s, int *errCode)
     exit(1);
 }
 
+bool isConnected(SOCKET* sock)
+{
+    return ((*sock) != INVALID_SOCKET);
+}
+
 
 void* iec104_cyclic_handle(void *args)
 {
     printf("Thread was started\r\n");
+
+    char str[56] = "Hello from server\r\n";
+
+    while(isConnected(&client_fd))
+    {
+        int sent = send(client_fd, str, strlen(str), 0);
+        if (sent == SOCKET_ERROR)
+        {
+            printf("Transmition error\r\n");
+            break;
+        }
+        sleep(1);
+    }
+
+    printf("Connection closed\r\n");
 
     return SUCCESS;
 }
@@ -32,7 +54,7 @@ void* iec104_cyclic_handle(void *args)
 int main(int argc, char *argv[])
 {
     WSADATA wsadata; 
-    SOCKET server_fd, client_fd;
+    SOCKET server_fd;
     struct sockaddr_in server, client;
     int port = 2404, err; 
     char buf[BUFFER_SIZE];
@@ -40,12 +62,7 @@ int main(int argc, char *argv[])
     pthread_t thread;
 	int status;
 
-    status = pthread_create(&thread, NULL, iec104_cyclic_handle, NULL);
 
-    if (status != 0) {
-		printf("main error: can't create thread, status = %d\n", status);
-		exit(ERROR_CREATE_THREAD);
-	}
 
     iec104_model_init();
 
@@ -82,6 +99,13 @@ int main(int argc, char *argv[])
         if (client_fd == INVALID_SOCKET)
             on_error("Non riesco a stabilire una nuova connessione", NULL);
 
+        status = pthread_create(&thread, NULL, iec104_cyclic_handle, NULL);
+
+        if (status != 0) {
+            printf("main error: can't create thread, status = %d\n", status);
+            exit(ERROR_CREATE_THREAD);
+        }
+
         bool keepLooping = true;
         do
         {
@@ -99,7 +123,10 @@ int main(int argc, char *argv[])
             // }
 
             if (read == 0)
+            {
+                keepLooping = false;
                 break;
+            }
 
             if (read == SOCKET_ERROR)
             {
@@ -131,6 +158,7 @@ int main(int argc, char *argv[])
         while (keepLooping);
 
         closesocket(client_fd);
+        client_fd = INVALID_SOCKET;
     }
 
     WSACleanup();
