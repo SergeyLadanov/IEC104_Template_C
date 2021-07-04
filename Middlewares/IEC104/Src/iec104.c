@@ -403,7 +403,7 @@ void iec104_sporadic_prepare(iec_104_propTypeDef *iec104_prop)
 
 	asdu_hdr_typeDef *asdu_pkt = (void*)iec_104_pkt->asdu;
 
-	asdu_prepare(asdu_pkt, C_IC_NA_1, ASDU_ADDR_1, SQ_FALSE, 7, 0, 1);
+	asdu_prepare(asdu_pkt, C_IC_NA_1, ASDU_ADDR_1, SQ_FALSE, 1, 0, 1);
 
 	uint8_t len = 0;
 	for (uint8_t i = 0; i < iec104Data.Capacity; i++)
