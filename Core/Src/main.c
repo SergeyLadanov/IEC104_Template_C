@@ -16,6 +16,9 @@
 iec_104_propTypeDef iecProp;
 static SOCKET client_fd;
 
+// Объект мьютекса
+pthread_mutex_t mutex;
+
 void on_error(char *s, int *errCode)
 {
     int err = (errCode) ? *errCode : WSAGetLastError();
@@ -37,12 +40,15 @@ void* iec104_cyclic_handle(void *args)
 
     while(isConnected(&client_fd))
     {
+        pthread_mutex_lock(&mutex);
         int sent = send(client_fd, str, strlen(str), 0);
         if (sent == SOCKET_ERROR)
         {
             printf("Transmition error\r\n");
             break;
         }
+
+        pthread_mutex_unlock(&mutex);
         sleep(1);
     }
 
@@ -113,14 +119,10 @@ int main(int argc, char *argv[])
 
             uint8_t txData[1024];
 
+            pthread_mutex_lock(&mutex);
             iec104_SetDataBuffer(&iecProp.RxBuf, (uint8_t *) buf, read);
             iec104_AttachBuffer(&iecProp.TxBuf, txData, 1024);
             iec104_PacketHandler(&iecProp);
-
-            // if (iecProp.TxBuf.Len > 0)
-            // {
-            //     sendRepply(iecProp.TxBuf.Data, iecProp.TxBuf.Len);
-            // }
 
             if (read == 0)
             {
@@ -154,6 +156,7 @@ int main(int argc, char *argv[])
                 read -= sent;
             }
             while (read > 0);
+            pthread_mutex_unlock(&mutex);
         }
         while (keepLooping);
 
