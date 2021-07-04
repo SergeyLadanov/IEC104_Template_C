@@ -42,11 +42,11 @@ void* iec104_cyclic_handle(void *args)
     {
 
         uint8_t txData[1024];
-
+        sleep(5);
         pthread_mutex_lock(&mutex);
         iec104_AttachBuffer(&iecProp.TxBuf, txData, 1024);
 
-        iec104_sporadic_prepare(&iecProp);
+        iec104_cyclic_prepare(&iecProp);
         int sent = send(client_fd, (char *) iecProp.TxBuf.Data, iecProp.TxBuf.Len, 0);
         if (sent == SOCKET_ERROR)
         {
@@ -55,7 +55,7 @@ void* iec104_cyclic_handle(void *args)
         }
 
         pthread_mutex_unlock(&mutex);
-        sleep(5);
+        
     }
 
     printf("Connection closed\r\n");

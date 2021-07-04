@@ -313,6 +313,7 @@ void iec104_attachAsduData(iec104_asduBlock *Data, uint16_t Capacity);
 uint8_t iec104_setFloat(uint8_t asduAdr, uint32_t ioAdr, float val);
 uint8_t iec104_setByte(uint8_t asduAdr, uint32_t ioAdr, uint8_t val);
 uint8_t iec104_setHalfWord(uint8_t asduAdr, uint32_t ioAdr, uint16_t val);
+void iec104_cyclic_prepare(iec_104_propTypeDef *iec104_prop);
 void iec104_sporadic_prepare(iec_104_propTypeDef *iec104_prop);
 
 #endif	/* __IEC104_H */
