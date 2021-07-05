@@ -3,7 +3,7 @@
 #include "iec104_model.h"
 #include <time.h>
 
-iec_104_propTypeDef test;
+extern iec_104_propTypeDef iecProp;
 
 // Создание структуры данных
 IEC104_CREATE_DATA_SET(Flags, 2) = {
@@ -58,7 +58,7 @@ void iec104_model_init(void)
 	IEC104_INIT_DATA_SET(Flags);
 	IEC104_INIT_DATA_SET(iec104values1);
 	IEC104_INIT_DATA_SET(iec104values2);
-	IEC104_INIT_ASDU(test, iec104Model);
+	IEC104_INIT_ASDU(iecProp, iec104Model);
 
 }
 
@@ -79,13 +79,13 @@ void iec104_PreInrogenRepplyCallback(void)
 {
 	iec104_asduBlock *pasdu; 
 
-	pasdu = iec104_GetAsduByIndex(0);
+	pasdu = iec104_GetAsduByIndex(&iecProp, 0);
 	iec104_SetAsduType(pasdu, M_SP_NA_1);
 
-	pasdu = iec104_GetAsduByIndex(1);
+	pasdu = iec104_GetAsduByIndex(&iecProp, 1);
 	iec104_SetAsduType(pasdu, M_ME_NC_1);
 
-	pasdu = iec104_GetAsduByIndex(2);
+	pasdu = iec104_GetAsduByIndex(&iecProp, 2);
 	iec104_SetAsduType(pasdu, M_ME_NC_1);
 }
 
@@ -94,13 +94,13 @@ void iec104_PreSendSporadicCallback(void)
 {
 	iec104_asduBlock *pasdu; 
 
-	pasdu = iec104_GetAsduByIndex(0);
+	pasdu = iec104_GetAsduByIndex(&iecProp, 0);
 	iec104_SetAsduType(pasdu, M_SP_TB_1);
 
-	pasdu = iec104_GetAsduByIndex(1);
+	pasdu = iec104_GetAsduByIndex(&iecProp, 1);
 	iec104_SetAsduType(pasdu, M_ME_TF_1);
 
-	pasdu = iec104_GetAsduByIndex(2);
+	pasdu = iec104_GetAsduByIndex(&iecProp, 2);
 	iec104_SetAsduType(pasdu, M_ME_TF_1);
 }
 
@@ -109,12 +109,12 @@ void iec104_PreSendCyclicCallback(void)
 {
 	iec104_asduBlock *pasdu; 
 
-	pasdu = iec104_GetAsduByIndex(0);
+	pasdu = iec104_GetAsduByIndex(&iecProp, 0);
 	iec104_SetAsduType(pasdu, M_SP_NA_1);
 
-	pasdu = iec104_GetAsduByIndex(1);
+	pasdu = iec104_GetAsduByIndex(&iecProp, 1);
 	iec104_SetAsduType(pasdu, M_ME_NC_1);
 
-	pasdu = iec104_GetAsduByIndex(2);
+	pasdu = iec104_GetAsduByIndex(&iecProp, 2);
 	iec104_SetAsduType(pasdu, M_ME_NC_1);
 }

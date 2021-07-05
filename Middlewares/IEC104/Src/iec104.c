@@ -76,29 +76,29 @@ static void iec104_SetCP56Time(struct tm *in, uint8_t *out)
 
 
 //Функция установки значения в модель данных
-uint8_t iec104_setVal(uint8_t asduAdr, uint32_t ioAdr, void *val)
+uint8_t iec104_setVal(iec_104_propTypeDef *hiec, uint8_t asduAdr, uint32_t ioAdr, void *val)
 {
 	uint8_t result = 1;
-	for (uint8_t i = 0; i < iec104Data.Capacity; i++)
+	for (uint8_t i = 0; i < hiec->Capacity; i++)
 	{
-		if (iec104Data.Data[i].AdrAsdu == asduAdr)
+		if (hiec->Data[i].AdrAsdu == asduAdr)
 		{
-			for (uint8_t j = 0; j < iec104Data.Data[i].Objects->Capacity; j++)
+			for (uint8_t j = 0; j < hiec->Data[i].Objects->Capacity; j++)
 			{
-				if (iec104Data.Data[i].Objects->Data[j].AdrObj == ioAdr)
+				if (hiec->Data[i].Objects->Data[j].AdrObj == ioAdr)
 				{
-					switch(iec104Data.Data[i].Idt)
+					switch(hiec->Data[i].Idt)
 					{
 					case M_SP_NA_1:
 					case M_SP_TB_1:
-						iec104Data.Data[i].Objects->Data[j].Val.U8 = *((uint8_t *)val);
+						hiec->Data[i].Objects->Data[j].Val.U8 = *((uint8_t *)val);
 						break;
 					case M_ME_NA_1:
-						iec104Data.Data[i].Objects->Data[j].Val.U16 = *((uint16_t *)val);
+						hiec->Data[i].Objects->Data[j].Val.U16 = *((uint16_t *)val);
 						break;
 					case M_ME_NC_1:
 					case M_ME_TF_1:
-						iec104Data.Data[i].Objects->Data[j].Val.FVal = *((float *)val);
+						hiec->Data[i].Objects->Data[j].Val.FVal = *((float *)val);
 						break;
 					}
 					return 0;
@@ -111,19 +111,19 @@ uint8_t iec104_setVal(uint8_t asduAdr, uint32_t ioAdr, void *val)
 }
 
 //-----------------------------------------------
-uint8_t iec104_setFloat(uint8_t asduAdr, uint32_t ioAdr, float val)
+uint8_t iec104_setFloat(iec_104_propTypeDef *hiec, uint8_t asduAdr, uint32_t ioAdr, float val)
 {
-	return iec104_setVal(asduAdr, ioAdr, &val);
+	return iec104_setVal(hiec, asduAdr, ioAdr, &val);
 }
 //------------------------------------------------
-uint8_t iec104_setByte(uint8_t asduAdr, uint32_t ioAdr, uint8_t val)
+uint8_t iec104_setByte(iec_104_propTypeDef *hiec, uint8_t asduAdr, uint32_t ioAdr, uint8_t val)
 {
-	return iec104_setVal(asduAdr, ioAdr, &val);
+	return iec104_setVal(hiec, asduAdr, ioAdr, &val);
 }
 //--------------------------------------------------------------------------
-uint8_t iec104_setHalfWord(uint8_t asduAdr, uint32_t ioAdr, uint16_t val)
+uint8_t iec104_setHalfWord(iec_104_propTypeDef *hiec, uint8_t asduAdr, uint32_t ioAdr, uint16_t val)
 {
-	return iec104_setVal(asduAdr, ioAdr, &val);
+	return iec104_setVal(hiec, asduAdr, ioAdr, &val);
 }
 //-----------------------------------------------------------------------
 void iec104_initAsduDataSet(iec104_asduDataSet *DataSet, iec104_objTypeDef *DataArray, uint16_t Capacity)
@@ -134,8 +134,8 @@ void iec104_initAsduDataSet(iec104_asduDataSet *DataSet, iec104_objTypeDef *Data
 //------------------------------------------------------
 void iec104_attachAsduData(iec_104_propTypeDef *hiec, iec104_asduBlock *Data, uint16_t Capacity)
 {
-	iec104Data.Data = Data;
-	iec104Data.Capacity = Capacity;
+	hiec->Data = Data;
+	hiec->Capacity = Capacity;
 }
 
 // Функция привязки буфера
@@ -402,10 +402,10 @@ void iec_104_read(iec_104_propTypeDef *iec104_prop)
 			iec104_PreInrogenRepplyCallback();
 
 			uint8_t len = 0;
-			for (uint8_t i = 0; i < iec104Data.Capacity; i++)
+			for (uint8_t i = 0; i < iec104_prop->Capacity; i++)
 			{
 
-				len = group_data_prepare(iec104_prop, dataBuf, &iec104Data.Data[i], CAUSE_INROGEN);
+				len = group_data_prepare(iec104_prop, dataBuf, &iec104_prop->Data[i], CAUSE_INROGEN);
 				iec104_CopyDataToBuffer(&iec104_prop->TxBuf, dataBuf, len);
 			}
 
@@ -484,10 +484,10 @@ void iec104_cyclic_prepare(iec_104_propTypeDef *iec104_prop)
 
 	iec104_PreSendCyclicCallback();
 
-	for (uint8_t i = 0; i < iec104Data.Capacity; i++)
+	for (uint8_t i = 0; i < iec104_prop->Capacity; i++)
 	{
 
-		len = group_data_prepare(iec104_prop, dataBuf, &iec104Data.Data[i], CAUSE_PER_CYC);
+		len = group_data_prepare(iec104_prop, dataBuf, &iec104_prop->Data[i], CAUSE_PER_CYC);
 		iec104_CopyDataToBuffer(&iec104_prop->TxBuf, dataBuf, len);
 	}
 }
@@ -501,10 +501,10 @@ void iec104_sporadic_prepare(iec_104_propTypeDef *iec104_prop)
 
 	iec104_PreSendSporadicCallback();
 
-	for (uint8_t i = 0; i < iec104Data.Capacity; i++)
+	for (uint8_t i = 0; i < iec104_prop->Capacity; i++)
 	{
 
-		len = group_data_prepare(iec104_prop, dataBuf, &iec104Data.Data[i], CAUSE_SPONT);
+		len = group_data_prepare(iec104_prop, dataBuf, &iec104_prop->Data[i], CAUSE_SPONT);
 		iec104_CopyDataToBuffer(&iec104_prop->TxBuf, dataBuf, len);
 	}
 }

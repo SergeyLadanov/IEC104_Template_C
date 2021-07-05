@@ -354,9 +354,9 @@ void iec104_PacketHandler(iec_104_propTypeDef *iec104_prop);
 void iec104_initAsduDataSet(iec104_asduDataSet *DataSet, iec104_objTypeDef *DataArray, uint16_t Capacity);
 void iec104_attachAsduData(iec_104_propTypeDef *hiec, iec104_asduBlock *Data, uint16_t Capacity);
 
-uint8_t iec104_setFloat(uint8_t asduAdr, uint32_t ioAdr, float val);
-uint8_t iec104_setByte(uint8_t asduAdr, uint32_t ioAdr, uint8_t val);
-uint8_t iec104_setHalfWord(uint8_t asduAdr, uint32_t ioAdr, uint16_t val);
+uint8_t iec104_setFloat(iec_104_propTypeDef *hiec, uint8_t asduAdr, uint32_t ioAdr, float val);
+uint8_t iec104_setByte(iec_104_propTypeDef *hiec, uint8_t asduAdr, uint32_t ioAdr, uint8_t val);
+uint8_t iec104_setHalfWord(iec_104_propTypeDef *hiec, uint8_t asduAdr, uint32_t ioAdr, uint16_t val);
 void iec104_cyclic_prepare(iec_104_propTypeDef *iec104_prop);
 void iec104_sporadic_prepare(iec_104_propTypeDef *iec104_prop);
 struct tm iec104_GetTime(void);
