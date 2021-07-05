@@ -10,38 +10,43 @@ IEC104_CREATE_DATA_SET(Flags, 2) = {
 };
 
 
-IEC104_CREATE_DATA_SET(iec104values, 2) = {
+IEC104_CREATE_DATA_SET(iec104values1, 12) = {
 		{8192},
 		{8193},
-		// {8194},
-		// {8195},
-		// {8196},
-		// {8197},
-		// {8198},
-		// {8199},
-		// {8200},
-		// {8201},
-		// {8202},
-		// {8203},
-        // {8204},
-		// {8205},
-		// {8206},
-		// {8207},
-		// {8208},
-		// {8209},
-		// {8210},
-		// {8211},
-		// {8212},
-		// {8213},
-		// {8214},
-		// {8215},
+		{8194},
+		{8195},
+		{8196},
+		{8197},
+		{8198},
+		{8199},
+		{8200},
+		{8201},
+		{8202},
+		{8203},
+};
+
+
+IEC104_CREATE_DATA_SET(iec104values2, 12) = {
+        {8204},
+		{8205},
+		{8206},
+		{8207},
+		{8208},
+		{8209},
+		{8210},
+		{8211},
+		{8212},
+		{8213},
+		{8214},
+		{8215},
 };
 
 
 //----------------------------------------------
-iec104_asduBlock iec104Model[2] = {
+iec104_asduBlock iec104Model[3] = {
 		{ASDU_ADR, M_SP_TB_1, &Flags},
-		{ASDU_ADR, M_ME_TF_1, &iec104values}
+		{ASDU_ADR, M_ME_TF_1, &iec104values1},
+		{ASDU_ADR, M_ME_TF_1, &iec104values2}
 };
 
 
@@ -49,7 +54,8 @@ iec104_asduBlock iec104Model[2] = {
 void iec104_model_init(void)
 {
 	IEC104_INIT_DATA_SET(Flags);
-	IEC104_INIT_DATA_SET(iec104values);
+	IEC104_INIT_DATA_SET(iec104values1);
+	IEC104_INIT_DATA_SET(iec104values2);
 	IEC104_INIT_ASDU(iec104Model);
 
 }

@@ -406,7 +406,6 @@ void iec_104_read(iec_104_propTypeDef *iec104_prop)
 	}
 	else if (type == S_TYPE) //Если принят пакет типа S
 	{
-		//apci_S_format *apci_S_pkt = (void *)iec_104_pkt->data;
 		iec104_prop->no_ask_counter = NO_ASK_SENDS;
 		iec104_CopyDataToBuffer(&iec104_prop->TxBuf, (uint8_t *)iec_104_pkt, iec_104_pkt->apdu_len + 2);
 
