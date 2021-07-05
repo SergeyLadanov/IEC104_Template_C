@@ -16,6 +16,35 @@
 
 static iec104_dataSettings iec104Data;
 
+// Преобразование временик массиву
+static void iec104_SetCP56Time(struct tm *in, uint8_t *out)
+{
+	// Милисекунды
+	out[0] = 0;
+	out[1] = 0;
+	// Минуты
+	out[2] = in->tm_min;
+	// Флаги минут
+	out[2] |= 0;
+	// Часы
+	out[3] = in->tm_hour;
+	// Флаги часов
+	out[3] |= 0;
+	// Дни недели и дни месяца
+	out[4] = (in->tm_wday << 5) | (in->tm_mday);
+	// Месяц
+	out[5] = (in->tm_mon + 1);
+	// Год
+	out[6] = (in->tm_year - 100);
+}
+
+
+// Функция получения текущего времени
+__attribute__((weak)) struct tm iec104_GetTime(void)
+{
+	struct tm tim;
+	return tim;
+}
 
 //Функция установки значения в модель данных
 uint8_t iec104_setVal(uint8_t asduAdr, uint32_t ioAdr, void *val)
@@ -32,12 +61,14 @@ uint8_t iec104_setVal(uint8_t asduAdr, uint32_t ioAdr, void *val)
 					switch(iec104Data.Data[i].Idt)
 					{
 					case M_SP_NA_1:
+					case M_SP_TB_1:
 						iec104Data.Data[i].Objects->Data[j].Val.U8 = *((uint8_t *)val);
 						break;
 					case M_ME_NA_1:
 						iec104Data.Data[i].Objects->Data[j].Val.U16 = *((uint16_t *)val);
 						break;
 					case M_ME_NC_1:
+					case M_ME_TF_1:
 						iec104Data.Data[i].Objects->Data[j].Val.FVal = *((float *)val);
 						break;
 					}
@@ -106,15 +137,10 @@ void iec104_CopyDataToBuffer(ByteBufferTypeDef *Buffer, uint8_t *Data, uint16_t 
 // Обработка пакета
 void iec104_PacketHandler(iec_104_propTypeDef *iec104_prop)
 {
-
 	if (iec104_prop->RxBuf.Data[0] == IEC104_START_ID)
 	{
 		iec_104_read(iec104_prop);
 	}
-	//char msg[] = "Hello it is work!!!\r\n";
-	//iec104_CopyDataToBuffer(&iec104_prop->TxBuf, (uint8_t *)msg, strlen(msg));
-//	iec104_CopyDataToBuffer(&iec104_prop->TxBuf, iec104_prop->RxBuf.Data, iec104_prop->RxBuf.Len);
-
 }
 /****************************************************************/
 
@@ -185,8 +211,17 @@ uint8_t M_ME_NC_1_prepare(M_ME_NC_1_IOtypeDef *io_pkt, uint32_t addr, float valu
 	io_pkt->QDS = QDS;
 
 	return sizeof(M_ME_NC_1_IOtypeDef);
+}
+//--------------------------------------------------------------
+//функция подготовки блока со значением float и с меткой времени
+uint8_t M_ME_TF_1_prepare(M_ME_TF_1_IOtypeDef *io_pkt, uint32_t addr, float value, uint8_t QDS, struct tm *u)
+{
+	WRITE_IO_ADDRESS(addr,io_pkt->addr);
+	io_pkt->value = value;
+	io_pkt->QDS = QDS;
+	iec104_SetCP56Time(u, io_pkt->CP56Time);
 
-
+	return sizeof(M_ME_TF_1_IOtypeDef);
 }
 //--------------------------------------------------------------
 //функция подготовки блока двухбайтным значением
@@ -206,6 +241,16 @@ uint8_t M_SP_NA_1_prepare(M_SP_NA_1_IOtypeDef *io_pkt, uint32_t addr, uint8_t SI
 	io_pkt->SIQ = SIQ;
 	return sizeof(M_SP_NA_1_IOtypeDef);
 }
+//---------------------------------------------------------------
+//функция подготовки блока с однобайтным значением с меткой времени
+uint8_t M_SP_TB_1_prepare(M_SP_TB_1_IOtypeDef *io_pkt, uint32_t addr, uint8_t SIQ, struct tm *u)
+{
+	WRITE_IO_ADDRESS(addr,io_pkt->addr);
+	io_pkt->SIQ = SIQ;
+	iec104_SetCP56Time(u, io_pkt->CP56Time);
+	return sizeof(M_SP_TB_1_IOtypeDef);
+}
+
 //---------------------------------------------------------------
 uint8_t* iec104_write_value(iec104_objTypeDef *obj, uint8_t Idt, uint8_t *buf, ErrorStatus stat_request, uint8_t* length, uint8_t number)
 {
@@ -232,6 +277,25 @@ uint8_t* iec104_write_value(iec104_objTypeDef *obj, uint8_t Idt, uint8_t *buf, E
 		return 	(void *)io_pkt->next;	//возвращение указателя на блок со следующим значением
 	}
 
+// Объекты с метками времени
+	if ( Idt == M_SP_TB_1 )    // 1 байт + байт качества + метка времени
+	{
+		struct tm tim = iec104_GetTime();
+		M_SP_TB_1_IOtypeDef *io_pkt = (void *)buf;
+		*length += M_SP_TB_1_prepare(io_pkt,obj->AdrObj,MEK104_M1_ALL_OK | obj->Val.U8, &tim);
+	
+		return 	(void *)io_pkt->next;	//возвращение указателя на блок со следующим значением
+	}
+
+
+	if ( Idt == M_ME_TF_1 )    // 4 байта float + байт качества + метка времени
+	{
+		struct tm tim = iec104_GetTime();
+		M_ME_TF_1_IOtypeDef *io_pkt = (void *)buf;
+		*length += M_ME_TF_1_prepare(io_pkt, obj->AdrObj, obj->Val.FVal, MEK104_M9_ALL_OK, &tim);
+		return 	(void *)io_pkt->next;	//возвращение указателя на блок со следующим значением
+	}
+
 	return NULL;
 }
 
@@ -239,18 +303,13 @@ uint8_t* iec104_write_value(iec104_objTypeDef *obj, uint8_t Idt, uint8_t *buf, E
 uint8_t get_base_data(iec104_objTypeDef *obj, uint8_t Idt, uint8_t *buf, uint8_t num)
 {
 	ErrorStatus stat_request = SUCCESS_104;
-//	uint32_t addr_desc;
 	uint8_t   length = 0;
-
 	uint32_t adr_tmp = obj->AdrObj; //сохраняется адрес текущей группы
 
 	// расположим данные в buf.data.send в соответствии с объектами информации кадра МЭК104
 	for(uint8_t i = 0; i < num; i++)
 	{
 			buf = iec104_write_value(&obj[i], Idt, buf, stat_request, &length, i);
-
-			//groupParam->a_obj = groupParam->a_obj + sizeof(RG_obj_mek104_t); //адрес следующего объекта в описателе
-																							 //"группа параметров" в eeprom = кс
 	}
 
 	obj->AdrObj = adr_tmp;
@@ -282,7 +341,7 @@ uint8_t group_data_prepare(iec_104_propTypeDef *iec104_prop, uint8_t * buf, iec1
 //------------------------------------------------------------
 void iec_104_read(iec_104_propTypeDef *iec104_prop)
 {
-	uint8_t dataBuf[512];
+	uint8_t dataBuf[1024];
 	iec_104_hdr *iec_104_pkt = (iec_104_hdr *) iec104_prop->RxBuf.Data;
 
 //	memcpy(iec104_prop->TxBuf.Data, iec104_prop->RxBuf.Data, iec_104_pkt->apdu_len + 2);
@@ -341,10 +400,7 @@ void iec_104_read(iec_104_propTypeDef *iec104_prop)
 		else if (asdu_pkt->type == C_CS_NA_1)
 		{
 			asdu_prepare(asdu_pkt, C_CS_NA_1, ASDU_ADDR_1, SQ_FALSE, 7, 0, 1);
-			//M_SP_NA_1_IOtypeDef *io_pkt = (void *)asdu_pkt->data;
-			//M_SP_NA_1_prepare(io_pkt, 0, 20);
 			apci_prepare(iec104_prop, iec_104_pkt);
-
 			iec104_CopyDataToBuffer(&iec104_prop->TxBuf, iec104_prop->RxBuf.Data, iec_104_pkt->apdu_len + 2);
 		}
 
@@ -370,10 +426,6 @@ void iec_104_read(iec_104_propTypeDef *iec104_prop)
 			iec104_prop->timer = 0;
 			iec104_prop->no_ask_counter = NO_ASK_SENDS;
 
-			//get_group_parameters(); // считывание настроек баз данных
-
-
-
 		}
 	//-------------------------------------------------------------------------------
 		if (apci_U_pkt->control & STOPDT_ACT)
@@ -398,7 +450,7 @@ void iec_104_read(iec_104_propTypeDef *iec104_prop)
 // Данные циклической передачи
 void iec104_cyclic_prepare(iec_104_propTypeDef *iec104_prop)
 {
-	uint8_t dataBuf[512];
+	uint8_t dataBuf[1024];
 	uint8_t len = 0;
 
 	for (uint8_t i = 0; i < iec104Data.Capacity; i++)
@@ -413,7 +465,7 @@ void iec104_cyclic_prepare(iec_104_propTypeDef *iec104_prop)
 // Данные спорадической передачи
 void iec104_sporadic_prepare(iec_104_propTypeDef *iec104_prop)
 {
-	uint8_t dataBuf[512];
+	uint8_t dataBuf[1024];
 	uint8_t len = 0;
 
 	for (uint8_t i = 0; i < iec104Data.Capacity; i++)

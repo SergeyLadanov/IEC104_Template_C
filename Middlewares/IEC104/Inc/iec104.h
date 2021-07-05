@@ -29,6 +29,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <time.h>
 
 #define IEC104_START_ID 0x68
 //--------------------------
@@ -140,6 +141,10 @@ typedef struct{
 #define M_ME_TC_1 14
 #define M_IT_NA_1 15
 
+
+#define M_SP_TB_1 30
+#define M_ME_TF_1 36
+
 //Классификатор типа
 #define SQ_FALSE 0x00
 #define SQ_TRUE 0x80
@@ -195,11 +200,22 @@ typedef struct {
 #define WRITE_IO_ADDRESS(a,b) b[0] = (uint8_t)a; b[1] = (uint8_t)(a >> 8); b[2] = (uint8_t)(a >> 16);
 
 //Структуры объектов различных типов
+#pragma pack(push,1) // Выравнивание структуры в памяти по 1 байту
 typedef struct {
 	uint8_t addr[3];
 	uint8_t SIQ;
 	uint8_t next[];
 }M_SP_NA_1_IOtypeDef;
+#pragma pack(pop) // Возвращение предыдущих настроек выравнивания в памяти
+
+#pragma pack(push,1) // Выравнивание структуры в памяти по 1 байту
+typedef struct {
+	uint8_t addr[3];
+	uint8_t SIQ;
+	uint8_t CP56Time[7];
+	uint8_t next[];
+}M_SP_TB_1_IOtypeDef;
+#pragma pack(pop) // Возвращение предыдущих настроек выравнивания в памяти
 
 //typedef struct {
 
@@ -227,6 +243,16 @@ typedef struct {
 	uint8_t QDS;
 	uint8_t next[];
 }M_ME_NC_1_IOtypeDef;
+#pragma pack(pop) // Возвращение предыдущих настроек выравнивания в памяти
+//--------------------------------------------
+#pragma pack(push,1) // Выравнивание структуры в памяти по 1 байту
+typedef struct {
+	uint8_t addr[3];
+	float value;
+	uint8_t QDS;
+	uint8_t CP56Time[7];
+	uint8_t next[];
+}M_ME_TF_1_IOtypeDef;
 #pragma pack(pop) // Возвращение предыдущих настроек выравнивания в памяти
 
 
@@ -315,5 +341,6 @@ uint8_t iec104_setByte(uint8_t asduAdr, uint32_t ioAdr, uint8_t val);
 uint8_t iec104_setHalfWord(uint8_t asduAdr, uint32_t ioAdr, uint16_t val);
 void iec104_cyclic_prepare(iec_104_propTypeDef *iec104_prop);
 void iec104_sporadic_prepare(iec_104_propTypeDef *iec104_prop);
+struct tm iec104_GetTime(void);
 
 #endif	/* __IEC104_H */

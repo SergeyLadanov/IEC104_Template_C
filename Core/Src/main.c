@@ -41,15 +41,15 @@ void* iec104_cyclic_handle(void *args)
     while(isConnected(&client_fd))
     {
 
-        uint8_t txData[1024];
+        uint8_t txData[2048];
         sleep(5);
         pthread_mutex_lock(&mutex);
-        iec104_AttachBuffer(&iecProp.TxBuf, txData, 1024);
+        iec104_AttachBuffer(&iecProp.TxBuf, txData, 2048);
 
         iec104_cyclic_prepare(&iecProp);
         int sent = send(client_fd, (char *) iecProp.TxBuf.Data, iecProp.TxBuf.Len, 0);
 
-        pthread_mutex_unlock(&mutex);
+         pthread_mutex_unlock(&mutex);
         if (sent == SOCKET_ERROR)
         {
             printf("Transmition error\r\n");
