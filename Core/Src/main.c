@@ -48,13 +48,15 @@ void* iec104_cyclic_handle(void *args)
 
         iec104_cyclic_prepare(&iecProp);
         int sent = send(client_fd, (char *) iecProp.TxBuf.Data, iecProp.TxBuf.Len, 0);
+
+        pthread_mutex_unlock(&mutex);
         if (sent == SOCKET_ERROR)
         {
             printf("Transmition error\r\n");
             break;
         }
 
-        pthread_mutex_unlock(&mutex);
+        
         
     }
 
@@ -133,6 +135,7 @@ int main(int argc, char *argv[])
             if (read == 0)
             {
                 keepLooping = false;
+                pthread_mutex_unlock(&mutex);
                 break;
             }
 
