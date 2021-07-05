@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 
     pthread_mutex_init(&mutex, NULL);
 
-    iec104_model_init();
+    iec104_model_init(&iecProp);
 
     err = WSAStartup(MAKEWORD(2,2), &wsadata);
     if (err != 0)

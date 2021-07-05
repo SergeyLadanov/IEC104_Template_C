@@ -22,19 +22,19 @@ __attribute__((weak)) struct tm iec104_GetTime(void)
 
 
 // Обработка приема команды на общий опрос станции
-__attribute__((weak)) void iec104_PreInrogenRepplyCallback(void)
+__attribute__((weak)) void iec104_PreInrogenRepplyCallback(iec_104_propTypeDef *hiec)
 {
 	
 }
 
 // Функция получения текущего времени
-__attribute__((weak)) void iec104_PreSendSporadicCallback(void)
+__attribute__((weak)) void iec104_PreSendSporadicCallback(iec_104_propTypeDef *hiec)
 {
 	
 }
 
 // Функция получения текущего времени
-__attribute__((weak)) void iec104_PreSendCyclicCallback(void)
+__attribute__((weak)) void iec104_PreSendCyclicCallback(iec_104_propTypeDef *hiec)
 {
 	
 }
@@ -399,7 +399,7 @@ void iec_104_read(iec_104_propTypeDef *iec104_prop)
 
 			iec104_CopyDataToBuffer(&iec104_prop->TxBuf, iec104_prop->RxBuf.Data, iec_104_pkt->apdu_len + 2);
 
-			iec104_PreInrogenRepplyCallback();
+			iec104_PreInrogenRepplyCallback(iec104_prop);
 
 			uint8_t len = 0;
 			for (uint8_t i = 0; i < iec104_prop->Capacity; i++)
@@ -482,7 +482,7 @@ void iec104_cyclic_prepare(iec_104_propTypeDef *iec104_prop)
 	uint8_t dataBuf[IEC104_TMP_BUF_SIZE];
 	uint8_t len = 0;
 
-	iec104_PreSendCyclicCallback();
+	iec104_PreSendCyclicCallback(iec104_prop);
 
 	for (uint8_t i = 0; i < iec104_prop->Capacity; i++)
 	{
@@ -499,7 +499,7 @@ void iec104_sporadic_prepare(iec_104_propTypeDef *iec104_prop)
 	uint8_t dataBuf[IEC104_TMP_BUF_SIZE];
 	uint8_t len = 0;
 
-	iec104_PreSendSporadicCallback();
+	iec104_PreSendSporadicCallback(iec104_prop);
 
 	for (uint8_t i = 0; i < iec104_prop->Capacity; i++)
 	{

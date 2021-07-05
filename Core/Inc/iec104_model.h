@@ -8,6 +8,6 @@
 
 
 
-void iec104_model_init(void);
+void iec104_model_init(iec_104_propTypeDef *hiec);
 
 #endif /* INC_IEC104_MODEL_H_ */

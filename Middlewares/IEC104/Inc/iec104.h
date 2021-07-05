@@ -330,9 +330,9 @@ typedef struct {
 
 
 // Обработчики событий
-void iec104_PreInrogenRepplyCallback(void);
-void iec104_PreSendSporadicCallback(void);
-void iec104_PreSendCyclicCallback(void);
+void iec104_PreInrogenRepplyCallback(iec_104_propTypeDef *hiec);
+void iec104_PreSendSporadicCallback(iec_104_propTypeDef *hiec);
+void iec104_PreSendCyclicCallback(iec_104_propTypeDef *hiec);
 
 //---------------------------
 void iec104_ini(void);
