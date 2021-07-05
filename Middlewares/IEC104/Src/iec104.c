@@ -341,7 +341,7 @@ uint8_t group_data_prepare(iec_104_propTypeDef *iec104_prop, uint8_t * buf, iec1
 //------------------------------------------------------------
 void iec_104_read(iec_104_propTypeDef *iec104_prop)
 {
-	uint8_t dataBuf[1024];
+	uint8_t dataBuf[IEC104_TMP_BUF_SIZE];
 	iec_104_hdr *iec_104_pkt = (iec_104_hdr *) iec104_prop->RxBuf.Data;
 
 //	memcpy(iec104_prop->TxBuf.Data, iec104_prop->RxBuf.Data, iec_104_pkt->apdu_len + 2);
@@ -450,7 +450,7 @@ void iec_104_read(iec_104_propTypeDef *iec104_prop)
 // Данные циклической передачи
 void iec104_cyclic_prepare(iec_104_propTypeDef *iec104_prop)
 {
-	uint8_t dataBuf[1024];
+	uint8_t dataBuf[IEC104_TMP_BUF_SIZE];
 	uint8_t len = 0;
 
 	for (uint8_t i = 0; i < iec104Data.Capacity; i++)
@@ -465,7 +465,7 @@ void iec104_cyclic_prepare(iec_104_propTypeDef *iec104_prop)
 // Данные спорадической передачи
 void iec104_sporadic_prepare(iec_104_propTypeDef *iec104_prop)
 {
-	uint8_t dataBuf[1024];
+	uint8_t dataBuf[IEC104_TMP_BUF_SIZE];
 	uint8_t len = 0;
 
 	for (uint8_t i = 0; i < iec104Data.Capacity; i++)

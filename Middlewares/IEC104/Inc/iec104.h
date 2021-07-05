@@ -32,6 +32,8 @@
 #include <time.h>
 
 #define IEC104_START_ID 0x68
+
+#define IEC104_TMP_BUF_SIZE 1024
 //--------------------------
 #define MAX_BUFFER_LENGTH 512
 #define RECEIVE_TIME_OUT 50
