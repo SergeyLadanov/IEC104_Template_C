@@ -168,6 +168,7 @@ int main(int argc, char *argv[])
         while (keepLooping);
 
         closesocket(client_fd);
+        iec104_model_init(&iecProp);
         client_fd = INVALID_SOCKET;
     }
 

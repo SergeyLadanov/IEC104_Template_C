@@ -1,5 +1,3 @@
-
-
 #include "iec104_model.h"
 #include <time.h>
 
@@ -53,6 +51,7 @@ iec104_asduBlock iec104Model[3] = {
 //----------------------------------------
 void iec104_model_init(iec_104_propTypeDef *hiec)
 {
+	memset(hiec, 0, sizeof(iec_104_propTypeDef));
 	IEC104_INIT_DATA_SET(Flags);
 	IEC104_INIT_DATA_SET(iec104values1);
 	IEC104_INIT_DATA_SET(iec104values2);
