@@ -185,7 +185,7 @@ typedef struct{
 
 #define IEC104_CREATE_DATA_SET(Name, Size) iec104_asduDataSet Name; iec104_objTypeDef Name ## Raw[Size]
 #define IEC104_INIT_DATA_SET(Name) iec104_initAsduDataSet(&Name, Name ## Raw, sizeof(Name ## Raw)/sizeof(iec104_objTypeDef))
-#define IEC104_INIT_ASDU(Name) iec104_attachAsduData(Name, sizeof(Name)/sizeof(iec104_asduBlock))
+#define IEC104_INIT_ASDU(ObjName, AsduName) iec104_attachAsduData(&ObjName, AsduName, sizeof(AsduName)/sizeof(iec104_asduBlock))
 
 typedef enum
 {
@@ -281,16 +281,7 @@ typedef struct {
 }ByteBufferTypeDef;
 /*****************************************/
 
-typedef struct {
-	uint8_t state;  //Состояние соединения
-	uint16_t tx_count; //переданное количество сообщений
-	uint16_t rx_count; //принятое количество сообщений
-	uint8_t cyclyc_tx; //количество переданных циклических сообщений
-	ByteBufferTypeDef RxBuf;
-	ByteBufferTypeDef TxBuf;
-	uint16_t no_ask_counter;
-	uint32_t timer;
-} iec_104_propTypeDef;
+
 
 //Структура группы параметров
 typedef struct{
@@ -322,6 +313,21 @@ typedef struct{
 }iec104_dataSettings;
 
 
+typedef struct {
+	uint8_t state;  //Состояние соединения
+	uint16_t tx_count; //переданное количество сообщений
+	uint16_t rx_count; //принятое количество сообщений
+	uint8_t cyclyc_tx; //количество переданных циклических сообщений
+	ByteBufferTypeDef RxBuf;
+	ByteBufferTypeDef TxBuf;
+	uint16_t no_ask_counter;
+	uint32_t timer;
+
+	uint16_t Capacity;
+	iec104_asduBlock *Data;
+} iec_104_propTypeDef;
+
+
 
 // Обработчики событий
 void iec104_PreInrogenRepplyCallback(void);
@@ -346,7 +352,7 @@ void iec104_PacketHandler(iec_104_propTypeDef *iec104_prop);
 
 
 void iec104_initAsduDataSet(iec104_asduDataSet *DataSet, iec104_objTypeDef *DataArray, uint16_t Capacity);
-void iec104_attachAsduData(iec104_asduBlock *Data, uint16_t Capacity);
+void iec104_attachAsduData(iec_104_propTypeDef *hiec, iec104_asduBlock *Data, uint16_t Capacity);
 
 uint8_t iec104_setFloat(uint8_t asduAdr, uint32_t ioAdr, float val);
 uint8_t iec104_setByte(uint8_t asduAdr, uint32_t ioAdr, uint8_t val);
@@ -356,7 +362,7 @@ void iec104_sporadic_prepare(iec_104_propTypeDef *iec104_prop);
 struct tm iec104_GetTime(void);
 
 
-iec104_asduBlock *iec104_GetAsduByIndex(uint8_t index);
+iec104_asduBlock *iec104_GetAsduByIndex(iec_104_propTypeDef *hiec, uint8_t index);
 void iec104_SetAsduType(iec104_asduBlock *asdu, uint8_t idt);
 
 

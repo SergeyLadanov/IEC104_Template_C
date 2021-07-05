@@ -13,10 +13,6 @@
 
 
 
-
-static iec104_dataSettings iec104Data;
-
-
 // Функция получения текущего времени
 __attribute__((weak)) struct tm iec104_GetTime(void)
 {
@@ -44,9 +40,9 @@ __attribute__((weak)) void iec104_PreSendCyclicCallback(void)
 }
 
 // Получение ASDU по индексу
-iec104_asduBlock *iec104_GetAsduByIndex(uint8_t index)
+iec104_asduBlock *iec104_GetAsduByIndex(iec_104_propTypeDef *hiec, uint8_t index)
 {
-	return &iec104Data.Data[index];
+	return &hiec->Data[index];
 }
 
 
@@ -136,7 +132,7 @@ void iec104_initAsduDataSet(iec104_asduDataSet *DataSet, iec104_objTypeDef *Data
 	DataSet->Data = DataArray;
 }
 //------------------------------------------------------
-void iec104_attachAsduData(iec104_asduBlock *Data, uint16_t Capacity)
+void iec104_attachAsduData(iec_104_propTypeDef *hiec, iec104_asduBlock *Data, uint16_t Capacity)
 {
 	iec104Data.Data = Data;
 	iec104Data.Capacity = Capacity;

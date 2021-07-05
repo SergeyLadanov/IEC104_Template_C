@@ -3,6 +3,8 @@
 #include "iec104_model.h"
 #include <time.h>
 
+iec_104_propTypeDef test;
+
 // Создание структуры данных
 IEC104_CREATE_DATA_SET(Flags, 2) = {
 		{1000},
@@ -56,7 +58,7 @@ void iec104_model_init(void)
 	IEC104_INIT_DATA_SET(Flags);
 	IEC104_INIT_DATA_SET(iec104values1);
 	IEC104_INIT_DATA_SET(iec104values2);
-	IEC104_INIT_ASDU(iec104Model);
+	IEC104_INIT_ASDU(test, iec104Model);
 
 }
 
