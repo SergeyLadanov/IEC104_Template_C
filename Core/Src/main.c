@@ -20,7 +20,7 @@ static SOCKET client_fd;
 pthread_mutex_t mutex;
 
 
-
+// Обрабтка ошибки
 void on_error(char *s, int *errCode)
 {
     int err = (errCode) ? *errCode : WSAGetLastError();
@@ -28,17 +28,16 @@ void on_error(char *s, int *errCode)
     exit(1);
 }
 
+// Проверка статуса клиента
 bool isConnected(SOCKET* sock)
 {
     return ((*sock) != INVALID_SOCKET);
 }
 
-
-void* iec104_cyclic_handle(void *args)
+// Задача по бработке IEC104
+void* iec104_handle(void *args)
 {
     printf("Thread was started\r\n");
-
-    char str[56] = "Hello from server\r\n";
 
     while(isConnected(&client_fd))
     {
@@ -57,9 +56,6 @@ void* iec104_cyclic_handle(void *args)
             printf("Transmition error\r\n");
             break;
         }
-
-        
-        
     }
 
     printf("Connection closed\r\n");
@@ -115,7 +111,7 @@ int main(int argc, char *argv[])
         if (client_fd == INVALID_SOCKET)
             on_error("Non riesco a stabilire una nuova connessione", NULL);
 
-        status = pthread_create(&thread, NULL, iec104_cyclic_handle, NULL);
+        status = pthread_create(&thread, NULL, iec104_handle, NULL);
 
         if (status != 0) {
             printf("main error: can't create thread, status = %d\n", status);
