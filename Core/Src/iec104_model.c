@@ -70,3 +70,49 @@ struct tm iec104_GetTime(void)
 
 	return *u;
 }
+
+
+// Обработка приема команды на общий опрос станции
+void iec104_PreInrogenRepplyCallback(void)
+{
+	iec104_asduBlock *pasdu; 
+
+	pasdu = iec104_GetAsduByIndex(0);
+	iec104_SetAsduType(pasdu, M_SP_NA_1);
+
+	pasdu = iec104_GetAsduByIndex(1);
+	iec104_SetAsduType(pasdu, M_ME_NC_1);
+
+	pasdu = iec104_GetAsduByIndex(2);
+	iec104_SetAsduType(pasdu, M_ME_NC_1);
+}
+
+// Функция получения текущего времени
+void iec104_PreSendSporadicCallback(void)
+{
+	iec104_asduBlock *pasdu; 
+
+	pasdu = iec104_GetAsduByIndex(0);
+	iec104_SetAsduType(pasdu, M_SP_TB_1);
+
+	pasdu = iec104_GetAsduByIndex(1);
+	iec104_SetAsduType(pasdu, M_ME_TF_1);
+
+	pasdu = iec104_GetAsduByIndex(2);
+	iec104_SetAsduType(pasdu, M_ME_TF_1);
+}
+
+// Функция получения текущего времени
+void iec104_PreSendCyclicCallback(void)
+{
+	iec104_asduBlock *pasdu; 
+
+	pasdu = iec104_GetAsduByIndex(0);
+	iec104_SetAsduType(pasdu, M_SP_NA_1);
+
+	pasdu = iec104_GetAsduByIndex(1);
+	iec104_SetAsduType(pasdu, M_ME_NC_1);
+
+	pasdu = iec104_GetAsduByIndex(2);
+	iec104_SetAsduType(pasdu, M_ME_NC_1);
+}

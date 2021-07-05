@@ -321,6 +321,13 @@ typedef struct{
 	iec104_asduBlock *Data;
 }iec104_dataSettings;
 
+
+
+// Обработчики событий
+void iec104_PreInrogenRepplyCallback(void);
+void iec104_PreSendSporadicCallback(void);
+void iec104_PreSendCyclicCallback(void);
+
 //---------------------------
 void iec104_ini(void);
 void TCP_sys_timer(void);
@@ -347,5 +354,11 @@ uint8_t iec104_setHalfWord(uint8_t asduAdr, uint32_t ioAdr, uint16_t val);
 void iec104_cyclic_prepare(iec_104_propTypeDef *iec104_prop);
 void iec104_sporadic_prepare(iec_104_propTypeDef *iec104_prop);
 struct tm iec104_GetTime(void);
+
+
+iec104_asduBlock *iec104_GetAsduByIndex(uint8_t index);
+void iec104_SetAsduType(iec104_asduBlock *asdu, uint8_t idt);
+
+
 
 #endif	/* __IEC104_H */

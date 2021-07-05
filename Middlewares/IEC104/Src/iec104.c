@@ -16,6 +16,46 @@
 
 static iec104_dataSettings iec104Data;
 
+
+// Функция получения текущего времени
+__attribute__((weak)) struct tm iec104_GetTime(void)
+{
+	struct tm tim = {0};
+	return tim;
+}
+
+
+// Обработка приема команды на общий опрос станции
+__attribute__((weak)) void iec104_PreInrogenRepplyCallback(void)
+{
+	
+}
+
+// Функция получения текущего времени
+__attribute__((weak)) void iec104_PreSendSporadicCallback(void)
+{
+	
+}
+
+// Функция получения текущего времени
+__attribute__((weak)) void iec104_PreSendCyclicCallback(void)
+{
+	
+}
+
+// Получение ASDU по индексу
+iec104_asduBlock *iec104_GetAsduByIndex(uint8_t index)
+{
+	return &iec104Data.Data[index];
+}
+
+
+// Изменение типа группы
+void iec104_SetAsduType(iec104_asduBlock *asdu, uint8_t idt)
+{
+	asdu->Idt = idt;
+}
+
 // Преобразование временик массиву
 static void iec104_SetCP56Time(struct tm *in, uint8_t *out)
 {
@@ -38,13 +78,6 @@ static void iec104_SetCP56Time(struct tm *in, uint8_t *out)
 	out[6] = (in->tm_year - 100);
 }
 
-
-// Функция получения текущего времени
-__attribute__((weak)) struct tm iec104_GetTime(void)
-{
-	struct tm tim;
-	return tim;
-}
 
 //Функция установки значения в модель данных
 uint8_t iec104_setVal(uint8_t asduAdr, uint32_t ioAdr, void *val)
@@ -370,6 +403,8 @@ void iec_104_read(iec_104_propTypeDef *iec104_prop)
 
 			iec104_CopyDataToBuffer(&iec104_prop->TxBuf, iec104_prop->RxBuf.Data, iec_104_pkt->apdu_len + 2);
 
+			iec104_PreInrogenRepplyCallback();
+
 			uint8_t len = 0;
 			for (uint8_t i = 0; i < iec104Data.Capacity; i++)
 			{
@@ -451,6 +486,8 @@ void iec104_cyclic_prepare(iec_104_propTypeDef *iec104_prop)
 	uint8_t dataBuf[IEC104_TMP_BUF_SIZE];
 	uint8_t len = 0;
 
+	iec104_PreSendCyclicCallback();
+
 	for (uint8_t i = 0; i < iec104Data.Capacity; i++)
 	{
 
@@ -465,6 +502,8 @@ void iec104_sporadic_prepare(iec_104_propTypeDef *iec104_prop)
 {
 	uint8_t dataBuf[IEC104_TMP_BUF_SIZE];
 	uint8_t len = 0;
+
+	iec104_PreSendSporadicCallback();
 
 	for (uint8_t i = 0; i < iec104Data.Capacity; i++)
 	{

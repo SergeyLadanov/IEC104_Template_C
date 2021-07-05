@@ -19,6 +19,8 @@ static SOCKET client_fd;
 // Объект мьютекса
 pthread_mutex_t mutex;
 
+
+
 void on_error(char *s, int *errCode)
 {
     int err = (errCode) ? *errCode : WSAGetLastError();
@@ -46,7 +48,7 @@ void* iec104_cyclic_handle(void *args)
         pthread_mutex_lock(&mutex);
         iec104_AttachBuffer(&iecProp.TxBuf, txData, 2048);
 
-        iec104_cyclic_prepare(&iecProp);
+        iec104_sporadic_prepare(&iecProp);
         int sent = send(client_fd, (char *) iecProp.TxBuf.Data, iecProp.TxBuf.Len, 0);
 
          pthread_mutex_unlock(&mutex);
