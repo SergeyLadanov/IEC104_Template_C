@@ -154,10 +154,13 @@ typedef struct{
 //-----------------------------------------------------
 
 //Причины передачи
-#define CAUSE_PER_CYC 1  //Периодическая отправка
-#define CAUSE_BACK    2  // Фоновое сканирование
-#define CAUSE_SPONT   3  //Спорадическая передача
-#define CAUSE_INIT    4  //Инициализация
+#define CAUSE_PER_CYC   1  //Периодическая отправка
+#define CAUSE_BACK      2  // Фоновое сканирование
+#define CAUSE_SPONT     3  //Спорадическая передача
+#define CAUSE_INIT      4  //Инициализация
+#define CAUSE_INROGEN   20 //Общий опрос
+#define CAUSE_ACTCON    7  // Активация
+#define CAUSE_END_ACT   10 // Завершение активации
 
 //Флаги
 #define CAUSE_PN_FLAG (1<<6)

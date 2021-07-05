@@ -363,7 +363,7 @@ void iec_104_read(iec_104_propTypeDef *iec104_prop)
 		{
 			//-----------------------------------------------------------------
 			//7 - причина передачи CAUSE_ACTCON
-			asdu_prepare(asdu_pkt, C_IC_NA_1, ASDU_ADDR_1, SQ_FALSE, 7, 0, 1);
+			asdu_prepare(asdu_pkt, C_IC_NA_1, ASDU_ADDR_1, SQ_FALSE, CAUSE_ACTCON, 0, 1);
 			M_SP_NA_1_IOtypeDef *io_pkt = (void *)asdu_pkt->data;
 			M_SP_NA_1_prepare(io_pkt, 0, 20);
 			apci_prepare(iec104_prop, iec_104_pkt);
@@ -374,7 +374,7 @@ void iec_104_read(iec_104_propTypeDef *iec104_prop)
 			for (uint8_t i = 0; i < iec104Data.Capacity; i++)
 			{
 
-				len = group_data_prepare(iec104_prop, dataBuf, &iec104Data.Data[i],20);
+				len = group_data_prepare(iec104_prop, dataBuf, &iec104Data.Data[i], CAUSE_INROGEN);
 				iec104_CopyDataToBuffer(&iec104_prop->TxBuf, dataBuf, len);
 			}
 
@@ -385,8 +385,7 @@ void iec_104_read(iec_104_propTypeDef *iec104_prop)
 			//--------------------------------------------------------
 			asdu_pkt = (void*)iec_104_pkt->asdu;
 			io_pkt = (void *)asdu_pkt->data;
-			//20 - причина передачи CAUSE_INROGEN
-			len += asdu_prepare(asdu_pkt, C_IC_NA_1, ASDU_ADDR_1, SQ_FALSE, 10, 0, 1); //подготовка блока ASDU
+			len += asdu_prepare(asdu_pkt, C_IC_NA_1, ASDU_ADDR_1, SQ_FALSE, CAUSE_END_ACT, 0, 1); //подготовка блока ASDU
 			len += M_SP_NA_1_prepare(io_pkt, 0, 20);
 
 			len += sizeof(iec_104_hdr); //добавляется к общей длине пакета размер заголовка пакета
