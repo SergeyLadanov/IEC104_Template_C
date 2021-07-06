@@ -336,8 +336,8 @@ void iec_104_conn_close(iec_104_propTypeDef *iec104_prop);
 
 
 
-void iec104_SetTxData(ByteBufferTypeDef *Buffer, uint8_t *Data, uint16_t Len);
-void iec104_SetRxData(ByteBufferTypeDef *Buffer, uint8_t *Data, uint16_t Len);
+void iec104_SetTxData(iec_104_propTypeDef *hiec, uint8_t *Data, uint16_t Len);
+void iec104_SetRxData(iec_104_propTypeDef *hiec, uint8_t *Data, uint16_t Len);
 void iec_104_read(iec_104_propTypeDef *iec104_prop);
 void iec104_PacketHandler(iec_104_propTypeDef *iec104_prop);
 

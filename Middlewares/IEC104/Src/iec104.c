@@ -149,19 +149,19 @@ void iec104_attachAsduData(iec_104_propTypeDef *hiec, iec104_asduBlock *Data, ui
 }
 
 // Функция привязки передающего буфера
-void iec104_SetTxData(ByteBufferTypeDef *Buffer, uint8_t *Data, uint16_t Len)
+void iec104_SetTxData(iec_104_propTypeDef *hiec, uint8_t *Data, uint16_t Len)
 {
-	Buffer->Data = Data;
-	Buffer->Capacity = Len;
-	Buffer->Len = 0;
+	hiec->TxBuf.Data = Data;
+	hiec->TxBuf.Capacity = Len;
+	hiec->TxBuf.Len = 0;
 }
 
 // Функция привязки приемного буфера
-void iec104_SetRxData(ByteBufferTypeDef *Buffer, uint8_t *Data, uint16_t Len)
+void iec104_SetRxData(iec_104_propTypeDef *hiec, uint8_t *Data, uint16_t Len)
 {
-	Buffer->Data = Data;
-	Buffer->Capacity = Len;
-	Buffer->Len = Len;
+	hiec->RxBuf.Data = Data;
+	hiec->RxBuf.Capacity = Len;
+	hiec->RxBuf.Len = Len;
 }
 
 // Запрос на отправку данных
