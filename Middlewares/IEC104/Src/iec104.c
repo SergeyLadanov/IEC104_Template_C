@@ -12,31 +12,41 @@
 #define NO_ASK_SENDS 10
 
 
+#ifndef UNUSED
+#define UNUSED(X) (void)X
+#endif
+
+#ifndef __weak
+#define __weak __attribute__((weak))
+#endif
+
+
 
 // Функция получения текущего времени
-__attribute__((weak)) struct tm iec104_GetTime(void)
+__weak struct tm iec104_GetTime(void)
 {
 	struct tm tim = {0};
+	UNUSED(tim);
 	return tim;
 }
 
 
 // Обработка приема команды на общий опрос станции
-__attribute__((weak)) void iec104_PreInrogenRepplyCallback(iec_104_propTypeDef *hiec)
+__weak void iec104_PreInrogenRepplyCallback(iec_104_propTypeDef *hiec)
 {
-	
+	UNUSED(hiec);
 }
 
 // Функция получения текущего времени
-__attribute__((weak)) void iec104_PreSendSporadicCallback(iec_104_propTypeDef *hiec)
+__weak void iec104_PreSendSporadicCallback(iec_104_propTypeDef *hiec)
 {
-	
+	UNUSED(hiec);
 }
 
 // Функция получения текущего времени
-__attribute__((weak)) void iec104_PreSendCyclicCallback(iec_104_propTypeDef *hiec)
+__weak void iec104_PreSendCyclicCallback(iec_104_propTypeDef *hiec)
 {
-	
+	UNUSED(hiec);
 }
 
 // Получение ASDU по индексу
@@ -138,22 +148,24 @@ void iec104_attachAsduData(iec_104_propTypeDef *hiec, iec104_asduBlock *Data, ui
 	hiec->Capacity = Capacity;
 }
 
-// Функция привязки буфера
-void iec104_AttachBuffer(ByteBufferTypeDef *Buffer, uint8_t *Data, uint16_t Len)
+// Функция привязки передающего буфера
+void iec104_SetTxData(ByteBufferTypeDef *Buffer, uint8_t *Data, uint16_t Len)
 {
 	Buffer->Data = Data;
 	Buffer->Capacity = Len;
 	Buffer->Len = 0;
 }
-//------------------------------------
-void iec104_SetDataBuffer(ByteBufferTypeDef *Buffer, uint8_t *Data, uint16_t Len)
+
+// Функция привязки приемного буфера
+void iec104_SetRxData(ByteBufferTypeDef *Buffer, uint8_t *Data, uint16_t Len)
 {
 	Buffer->Data = Data;
 	Buffer->Capacity = Len;
 	Buffer->Len = Len;
 }
+
 // Запрос на отправку данных
-void iec104_CopyDataToBuffer(ByteBufferTypeDef *Buffer, uint8_t *Data, uint16_t Len)
+static void iec104_CopyDataToBuffer(ByteBufferTypeDef *Buffer, uint8_t *Data, uint16_t Len)
 {
 	if (Len > Buffer->Capacity)
 	{
@@ -163,6 +175,7 @@ void iec104_CopyDataToBuffer(ByteBufferTypeDef *Buffer, uint8_t *Data, uint16_t 
 	memcpy(&Buffer->Data[Buffer->Len], Data, Len);
 	Buffer->Len += Len;
 }
+
 // Обработка пакета
 void iec104_PacketHandler(iec_104_propTypeDef *iec104_prop)
 {
@@ -183,7 +196,7 @@ void iec_104_conn_close(iec_104_propTypeDef *iec104_prop)
     iec104_prop->cyclyc_tx = 0;
 }
 //-------------------------------------------------------------------
-void apci_prepare(iec_104_propTypeDef *iec104_prop, iec_104_hdr *iec_104_pkt)
+static void apci_prepare(iec_104_propTypeDef *iec104_prop, iec_104_hdr *iec_104_pkt)
 {
 	uint8_t type = get_type(iec_104_pkt->type);
 
@@ -213,7 +226,7 @@ void apci_prepare(iec_104_propTypeDef *iec104_prop, iec_104_hdr *iec_104_pkt)
 
 }
 //---------------------------------------------------------------
-void iec_104_packet_prepare(iec_104_hdr *iec_104_pkt, uint8_t type, uint8_t len)
+static void iec_104_packet_prepare(iec_104_hdr *iec_104_pkt, uint8_t type, uint8_t len)
 {
 	//Заполнение типа протокола и длины APDU
 	iec_104_pkt->start = 0x68;
@@ -221,7 +234,7 @@ void iec_104_packet_prepare(iec_104_hdr *iec_104_pkt, uint8_t type, uint8_t len)
 	iec_104_pkt->type = type;
 }
 //---------------------------------------------------------------
-uint8_t asdu_prepare(asdu_hdr_typeDef *asdu_pkt, uint8_t type, uint16_t asduAddr, uint8_t sq, uint8_t causeTx, uint8_t OA, uint8_t numIx)
+static uint8_t asdu_prepare(asdu_hdr_typeDef *asdu_pkt, uint8_t type, uint16_t asduAddr, uint8_t sq, uint8_t causeTx, uint8_t OA, uint8_t numIx)
 {
 	asdu_pkt->type = type;
 	asdu_pkt->classificator = sq | numIx;
@@ -233,7 +246,7 @@ uint8_t asdu_prepare(asdu_hdr_typeDef *asdu_pkt, uint8_t type, uint16_t asduAddr
 }
 //---------------------------------------------------------------
 //функция подготовки блока со значением float
-uint8_t M_ME_NC_1_prepare(M_ME_NC_1_IOtypeDef *io_pkt, uint32_t addr, float value, uint8_t QDS)
+static uint8_t M_ME_NC_1_prepare(M_ME_NC_1_IOtypeDef *io_pkt, uint32_t addr, float value, uint8_t QDS)
 {
 	WRITE_IO_ADDRESS(addr,io_pkt->addr);
 	io_pkt->value = value;
@@ -243,7 +256,7 @@ uint8_t M_ME_NC_1_prepare(M_ME_NC_1_IOtypeDef *io_pkt, uint32_t addr, float valu
 }
 //--------------------------------------------------------------
 //функция подготовки блока со значением float и с меткой времени
-uint8_t M_ME_TF_1_prepare(M_ME_TF_1_IOtypeDef *io_pkt, uint32_t addr, float value, uint8_t QDS, struct tm *u)
+static uint8_t M_ME_TF_1_prepare(M_ME_TF_1_IOtypeDef *io_pkt, uint32_t addr, float value, uint8_t QDS, struct tm *u)
 {
 	WRITE_IO_ADDRESS(addr,io_pkt->addr);
 	io_pkt->value = value;
@@ -254,7 +267,7 @@ uint8_t M_ME_TF_1_prepare(M_ME_TF_1_IOtypeDef *io_pkt, uint32_t addr, float valu
 }
 //--------------------------------------------------------------
 //функция подготовки блока двухбайтным значением
-uint8_t M_ME_NA_1_prepare(M_ME_NA_1_IOtypeDef *io_pkt, uint32_t addr, uint16_t value, uint8_t QDS)
+static uint8_t M_ME_NA_1_prepare(M_ME_NA_1_IOtypeDef *io_pkt, uint32_t addr, uint16_t value, uint8_t QDS)
 {
 	WRITE_IO_ADDRESS(addr,io_pkt->addr);
 	io_pkt->value = value;
@@ -264,7 +277,7 @@ uint8_t M_ME_NA_1_prepare(M_ME_NA_1_IOtypeDef *io_pkt, uint32_t addr, uint16_t v
 }
 //--------------------------------------------------------------
 //функция подготовки блока с однобайтным значением
-uint8_t M_SP_NA_1_prepare(M_SP_NA_1_IOtypeDef *io_pkt, uint32_t addr, uint8_t SIQ)
+static uint8_t M_SP_NA_1_prepare(M_SP_NA_1_IOtypeDef *io_pkt, uint32_t addr, uint8_t SIQ)
 {
 	WRITE_IO_ADDRESS(addr,io_pkt->addr);
 	io_pkt->SIQ = SIQ;
@@ -272,7 +285,7 @@ uint8_t M_SP_NA_1_prepare(M_SP_NA_1_IOtypeDef *io_pkt, uint32_t addr, uint8_t SI
 }
 //---------------------------------------------------------------
 //функция подготовки блока с однобайтным значением с меткой времени
-uint8_t M_SP_TB_1_prepare(M_SP_TB_1_IOtypeDef *io_pkt, uint32_t addr, uint8_t SIQ, struct tm *u)
+static uint8_t M_SP_TB_1_prepare(M_SP_TB_1_IOtypeDef *io_pkt, uint32_t addr, uint8_t SIQ, struct tm *u)
 {
 	WRITE_IO_ADDRESS(addr,io_pkt->addr);
 	io_pkt->SIQ = SIQ;
@@ -281,7 +294,7 @@ uint8_t M_SP_TB_1_prepare(M_SP_TB_1_IOtypeDef *io_pkt, uint32_t addr, uint8_t SI
 }
 
 //---------------------------------------------------------------
-uint8_t* iec104_write_value(iec104_objTypeDef *obj, uint8_t Idt, uint8_t *buf, ErrorStatus stat_request, uint8_t* length, uint8_t number)
+static uint8_t* iec104_write_value(iec104_objTypeDef *obj, uint8_t Idt, uint8_t *buf, ErrorStatus stat_request, uint8_t* length, uint8_t number)
 {
 
 	if ( Idt == M_SP_NA_1 ) {  // 1байт
@@ -329,7 +342,7 @@ uint8_t* iec104_write_value(iec104_objTypeDef *obj, uint8_t Idt, uint8_t *buf, E
 }
 
 
-uint8_t get_base_data(iec104_objTypeDef *obj, uint8_t Idt, uint8_t *buf, uint8_t num)
+static uint8_t get_base_data(iec104_objTypeDef *obj, uint8_t Idt, uint8_t *buf, uint8_t num)
 {
 	ErrorStatus stat_request = SUCCESS_104;
 	uint8_t   length = 0;
@@ -347,7 +360,7 @@ uint8_t get_base_data(iec104_objTypeDef *obj, uint8_t Idt, uint8_t *buf, uint8_t
 }
 
 //-----------------------------------------------------------
-uint8_t group_data_prepare(iec_104_propTypeDef *iec104_prop, uint8_t * buf, iec104_asduBlock *groupParam, uint8_t caseTx)
+static uint8_t group_data_prepare(iec_104_propTypeDef *iec104_prop, uint8_t * buf, iec104_asduBlock *groupParam, uint8_t caseTx)
 {
 	uint8_t total_len = 0;
 	iec_104_hdr *iec_104_pkt = (void *)buf; //Указатель на структуру пакета 104 протокола приравнивается адресу буфера передачи

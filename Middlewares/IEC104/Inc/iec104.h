@@ -267,12 +267,6 @@ typedef struct {
 	uint32_t length;
 }groupInfoTypeDef;
 //-------------------------------------------
-//typedef struct {
-//	RG_groop_mek104_t group_mek104;
-//	uint32_t a_obj;
-//	uint32_t time_counter;
-//}groupParametersTypeDef;
-/*****************************************/
 
 typedef struct {
 	uint8_t *Data;
@@ -280,8 +274,6 @@ typedef struct {
 	uint16_t Capacity;
 }ByteBufferTypeDef;
 /*****************************************/
-
-
 
 //Структура группы параметров
 typedef struct{
@@ -344,9 +336,8 @@ void iec_104_conn_close(iec_104_propTypeDef *iec104_prop);
 
 
 
-void iec104_AttachBuffer(ByteBufferTypeDef *Buffer, uint8_t *Data, uint16_t Len);
-void iec104_SetDataBuffer(ByteBufferTypeDef *Buffer, uint8_t *Data, uint16_t Len);
-void iec104_CopyDataToBuffer(ByteBufferTypeDef *Buffer, uint8_t *Data, uint16_t Len);
+void iec104_SetTxData(ByteBufferTypeDef *Buffer, uint8_t *Data, uint16_t Len);
+void iec104_SetRxData(ByteBufferTypeDef *Buffer, uint8_t *Data, uint16_t Len);
 void iec_104_read(iec_104_propTypeDef *iec104_prop);
 void iec104_PacketHandler(iec_104_propTypeDef *iec104_prop);
 

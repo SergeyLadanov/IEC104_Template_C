@@ -45,7 +45,7 @@ void* iec104_handle(void *args)
         uint8_t txData[2048];
         sleep(5);
         pthread_mutex_lock(&mutex);
-        iec104_AttachBuffer(&iecProp.TxBuf, txData, 2048);
+        iec104_SetTxData(&iecProp.TxBuf, txData, 2048);
 
         iec104_sporadic_prepare(&iecProp);
         int sent = send(client_fd, (char *) iecProp.TxBuf.Data, iecProp.TxBuf.Len, 0);
@@ -126,8 +126,8 @@ int main(int argc, char *argv[])
             uint8_t txData[1024];
 
             pthread_mutex_lock(&mutex);
-            iec104_SetDataBuffer(&iecProp.RxBuf, (uint8_t *) buf, read);
-            iec104_AttachBuffer(&iecProp.TxBuf, txData, 1024);
+            iec104_SetRxData(&iecProp.RxBuf, (uint8_t *) buf, read);
+            iec104_SetTxData(&iecProp.TxBuf, txData, 1024);
             iec104_PacketHandler(&iecProp);
 
             if (read == 0)
