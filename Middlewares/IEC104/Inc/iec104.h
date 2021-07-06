@@ -191,7 +191,7 @@ typedef enum
 {
   SUCCESS_104 = 0U,
   ERROR_104 = !SUCCESS_104
-} ErrorStatus;
+} IEC104_ErrorStatus;
 
 typedef struct {
 	uint8_t type;

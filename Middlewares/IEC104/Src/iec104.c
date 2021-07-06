@@ -294,7 +294,7 @@ static uint8_t M_SP_TB_1_prepare(M_SP_TB_1_IOtypeDef *io_pkt, uint32_t addr, uin
 }
 
 //---------------------------------------------------------------
-static uint8_t* iec104_write_value(iec104_objTypeDef *obj, uint8_t Idt, uint8_t *buf, ErrorStatus stat_request, uint8_t* length, uint8_t number)
+static uint8_t* iec104_write_value(iec104_objTypeDef *obj, uint8_t Idt, uint8_t *buf, IEC104_ErrorStatus stat_request, uint8_t* length, uint8_t number)
 {
 
 	if ( Idt == M_SP_NA_1 ) {  // 1байт
@@ -344,7 +344,7 @@ static uint8_t* iec104_write_value(iec104_objTypeDef *obj, uint8_t Idt, uint8_t 
 
 static uint8_t get_base_data(iec104_objTypeDef *obj, uint8_t Idt, uint8_t *buf, uint8_t num)
 {
-	ErrorStatus stat_request = SUCCESS_104;
+	IEC104_ErrorStatus stat_request = SUCCESS_104;
 	uint8_t   length = 0;
 	uint32_t adr_tmp = obj->AdrObj; //сохраняется адрес текущей группы
 
