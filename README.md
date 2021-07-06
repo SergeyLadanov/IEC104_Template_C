@@ -1,2 +1,3 @@
-# GCC_MakeFile_Template
-Шаблон проекта C/C++ для VS Code с Makefile и возможностью отладки
+# IEC104_Template
+
+Пример реализации протокола IEC 60870-5-104
