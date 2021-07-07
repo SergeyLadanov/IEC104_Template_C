@@ -43,27 +43,7 @@
 #define I_TYPE 0x00
 #define S_TYPE 0x01
 #define U_TYPE 0x03
-//--------------------------
-typedef enum{
-	STOPDT  = 0,
-	STARTDT = 1
-} iec104_stateTypeDef;
-//-------------------------------
-typedef enum{
-	OK = 0,
-	ERR = 1
-} iec104_statusTypeDef;
 
-/*********ЗАГОЛОВОК IEC 104******************/
-typedef struct{
-	uint8_t start; // Идентификатор 0x68
-	uint8_t apdu_len;
-	union{
-		uint8_t type;
-		uint8_t data[4];
-	};
-	uint8_t asdu[];
-} iec_104_hdr;
 /***********ТИПЫ APCI***************************/
 #define STARTDT_ACT (1<<2)
 #define STARTDT_CON (1<<3)
@@ -77,23 +57,6 @@ typedef struct{
 //команды
 #define C_IC_NA_1 100
 #define C_CS_NA_1 103
-//--------------------------
-typedef struct{
-	uint16_t tx_count;
-	uint16_t rx_count;
-} apci_I_format;
-//---------------------------
-typedef struct{
-	uint16_t unused;
-	uint16_t rx_count;
-} apci_S_format;
-//---------------------------
-typedef struct{
-	uint8_t control; //блок контроля
-	uint8_t unused[3]; //не используется
-} apci_U_format;
-
-
 
 #define MEK104_M1_IV 0x80   // (invalid/valid): 0 - действительная, 1 - недействительная.
 #define MEK104_M1_NT 0x40   // (not topical/topical): 0 - актуальное значение, 1 - неактуальное значение
@@ -183,9 +146,28 @@ typedef struct{
 
 
 
-#define IEC104_CREATE_DATA_SET(Name, Size) iec104_asduDataSet Name; iec104_objTypeDef Name ## Raw[Size]
-#define IEC104_INIT_DATA_SET(Name) iec104_initAsduDataSet(&Name, Name ## Raw, sizeof(Name ## Raw)/sizeof(iec104_objTypeDef))
-#define IEC104_INIT_ASDU(ObjName, AsduName) iec104_attachAsduData(&ObjName, AsduName, sizeof(AsduName)/sizeof(iec104_asduBlock))
+#define IEC104_CREATE_DATA_SET(Name, Size) IEC104_ASDU_DataSet Name; IEC104_IO_Obj Name ## Raw[Size]
+#define IEC104_INIT_DATA_SET(Name) iec104_initAsduDataSet(&Name, Name ## Raw, sizeof(Name ## Raw)/sizeof(IEC104_IO_Obj))
+#define IEC104_INIT_ASDU(ObjName, AsduName) iec104_attachAsduData(&ObjName, AsduName, sizeof(AsduName)/sizeof(IEC104_ASDU_Block))
+
+#define WRITE_IO_ADDRESS(a,b) b[0] = (uint8_t)a; b[1] = (uint8_t)(a >> 8); b[2] = (uint8_t)(a >> 16);
+
+#define IEC104_IV (1<<7)
+#define IEC104_NT (1<<6)
+#define IEC104_SB (1<<5)
+#define IEC104_BL (1<<4)
+#define IEC104_OV (1<<0)
+
+//--------------------------
+typedef enum{
+	STOPDT  = 0,
+	STARTDT = 1
+} IEC104_StateTypeDef;
+//-------------------------------
+typedef enum{
+	OK = 0,
+	ERR = 1
+} IEC104_StatusTypeDef;
 
 typedef enum
 {
@@ -193,87 +175,98 @@ typedef enum
   ERROR_104 = !SUCCESS_104
 } IEC104_ErrorStatus;
 
+/*********ЗАГОЛОВОК IEC 104******************/
+#pragma pack(push,1) // Выравнивание структуры в памяти по 1 байту
+typedef struct{
+	uint8_t Start; // Идентификатор 0x68
+	uint8_t APDU_Len;
+	union{
+		uint8_t Type;
+		uint8_t Data[4];
+	};
+	uint8_t ASDU[];
+} IEC104_Header;
+
+// Блок ASDU
 typedef struct {
-	uint8_t type;
-	uint8_t classificator; //Содержит количество величин и SQ
-	uint8_t causeTx;
+	uint8_t Type;
+	uint8_t Classificator; //Содержит количество величин и SQ
+	uint8_t CauseTx;
 	uint8_t OA;
-	uint16_t asduAddr;
-	uint8_t data[];
-}asdu_hdr_typeDef;
+	uint16_t ASDU_Addr;
+	uint8_t Data[];
+}IEC104_ASDU_Header;
+
+
+//--------------------------
+typedef struct{
+	uint16_t TxCount;
+	uint16_t RxCount;
+} IEC104_APCI_I_Format;
 //---------------------------
-#define WRITE_IO_ADDRESS(a,b) b[0] = (uint8_t)a; b[1] = (uint8_t)(a >> 8); b[2] = (uint8_t)(a >> 16);
+typedef struct{
+	uint16_t Unused;
+	uint16_t RxCount;
+} IEC104_APCI_S_Format;
+//---------------------------
+typedef struct{
+	uint8_t Control; //блок контроля
+	uint8_t Unused[3]; //не используется
+} IEC104_APCI_U_Format;
+
 
 //Структуры объектов различных типов
-#pragma pack(push,1) // Выравнивание структуры в памяти по 1 байту
 typedef struct {
-	uint8_t addr[3];
+	uint8_t Addr[3];
 	uint8_t SIQ;
-	uint8_t next[];
+	uint8_t Next[];
 }M_SP_NA_1_IOtypeDef;
-#pragma pack(pop) // Возвращение предыдущих настроек выравнивания в памяти
 
-#pragma pack(push,1) // Выравнивание структуры в памяти по 1 байту
 typedef struct {
-	uint8_t addr[3];
+	uint8_t Addr[3];
 	uint8_t SIQ;
 	uint8_t CP56Time[7];
-	uint8_t next[];
+	uint8_t Next[];
 }M_SP_TB_1_IOtypeDef;
-#pragma pack(pop) // Возвращение предыдущих настроек выравнивания в памяти
 
-//typedef struct {
-
-//}M_ME_NB_1_IOtypeDef;
 //------------------------------------------
-#define IEC104_IV (1<<7)
-#define IEC104_NT (1<<6)
-#define IEC104_SB (1<<5)
-#define IEC104_BL (1<<4)
-#define IEC104_OV (1<<0)
-//------------------------------------------
-#pragma pack(push,1) // Выравнивание структуры в памяти по 1 байту
 typedef struct {
-	uint8_t addr[3];
-	uint16_t value;
+	uint8_t Addr[3];
+	uint16_t Value;
 	uint8_t QDS;
-	uint8_t next[];
+	uint8_t Next[];
 }M_ME_NA_1_IOtypeDef;
-#pragma pack(pop) // Возвращение предыдущих настроек выравнивания в памяти
 //------------------------------------------
-#pragma pack(push,1) // Выравнивание структуры в памяти по 1 байту
+
 typedef struct {
-	uint8_t addr[3];
-	float value;
+	uint8_t Addr[3];
+	float Value;
 	uint8_t QDS;
-	uint8_t next[];
+	uint8_t Next[];
 }M_ME_NC_1_IOtypeDef;
-#pragma pack(pop) // Возвращение предыдущих настроек выравнивания в памяти
 //--------------------------------------------
-#pragma pack(push,1) // Выравнивание структуры в памяти по 1 байту
+
 typedef struct {
-	uint8_t addr[3];
-	float value;
+	uint8_t Addr[3];
+	float Value;
 	uint8_t QDS;
 	uint8_t CP56Time[7];
-	uint8_t next[];
+	uint8_t Next[];
 }M_ME_TF_1_IOtypeDef;
 #pragma pack(pop) // Возвращение предыдущих настроек выравнивания в памяти
 
-
 //------------------------------------------
 typedef struct {
-	uint32_t addr;
-	uint32_t length;
-}groupInfoTypeDef;
-//-------------------------------------------
+	uint32_t Addr;
+	uint32_t Length;
+}IEC104_GroupInfoTypeDef;
 
+//-------------------------------------------
 typedef struct {
 	uint8_t *Data;
 	uint16_t Len;
 	uint16_t Capacity;
-}ByteBufferTypeDef;
-/*****************************************/
+}IEC104_ByteBufferTypeDef;
 
 //Структура группы параметров
 typedef struct{
@@ -284,77 +277,70 @@ typedef struct{
 		uint32_t U32;
 		float FVal;
 	} Val;
-}iec104_objTypeDef;
+}IEC104_IO_Obj;
 
 //---------------------------------
-
 typedef struct{
 	uint16_t Capacity;
-	iec104_objTypeDef *Data;
-}iec104_asduDataSet;
+	IEC104_IO_Obj *Data;
+}IEC104_ASDU_DataSet;
+
 //---------------------------------
 typedef struct{
 	uint16_t AdrAsdu;
 	uint8_t Idt;
-	iec104_asduDataSet *Objects;
-}iec104_asduBlock;
+	IEC104_ASDU_DataSet *Objects;
+}IEC104_ASDU_Block;
+
 //---------------------------------
-typedef struct{
-	uint16_t Capacity;
-	iec104_asduBlock *Data;
-}iec104_dataSettings;
-
-
 typedef struct {
-	uint8_t state;  //Состояние соединения
-	uint16_t tx_count; //переданное количество сообщений
-	uint16_t rx_count; //принятое количество сообщений
-	uint8_t cyclyc_tx; //количество переданных циклических сообщений
-	ByteBufferTypeDef RxBuf;
-	ByteBufferTypeDef TxBuf;
-	uint16_t no_ask_counter;
-	uint32_t timer;
-
+	uint8_t State;  //Состояние соединения
+	uint16_t TxCount; //переданное количество сообщений
+	uint16_t RxCount; //принятое количество сообщений
+	IEC104_ByteBufferTypeDef RxBuf;
+	IEC104_ByteBufferTypeDef TxBuf;
+	uint16_t NoAskCnt;
+	uint32_t Timer;
 	uint16_t Capacity;
-	iec104_asduBlock *Data;
-} iec_104_propTypeDef;
+	IEC104_ASDU_Block *Data;
+} IEC104_Obj;
 
 
 
 // Обработчики событий
-void iec104_PreInrogenRepplyCallback(iec_104_propTypeDef *hiec);
-void iec104_PreSendSporadicCallback(iec_104_propTypeDef *hiec);
-void iec104_PreSendCyclicCallback(iec_104_propTypeDef *hiec);
+void iec104_PreInrogenRepplyCallback(IEC104_Obj *hiec);
+void iec104_PreSendSporadicCallback(IEC104_Obj *hiec);
+void iec104_PreSendCyclicCallback(IEC104_Obj *hiec);
 
 //---------------------------
 void iec104_ini(void);
 void TCP_sys_timer(void);
 void iec104_process(void);
 void timeOutHandler(void);
-void iec_104_conn_close(iec_104_propTypeDef *iec104_prop);
+void iec_104_conn_close(IEC104_Obj *iec104_prop);
 
 
 
 
-void iec104_SetTxData(iec_104_propTypeDef *hiec, uint8_t *Data, uint16_t Len);
-void iec104_SetRxData(iec_104_propTypeDef *hiec, uint8_t *Data, uint16_t Len);
-void iec_104_read(iec_104_propTypeDef *iec104_prop);
-void iec104_PacketHandler(iec_104_propTypeDef *iec104_prop);
+void iec104_SetTxData(IEC104_Obj *hiec, uint8_t *Data, uint16_t Len);
+void iec104_SetRxData(IEC104_Obj *hiec, uint8_t *Data, uint16_t Len);
+void iec_104_read(IEC104_Obj *iec104_prop);
+void iec104_PacketHandler(IEC104_Obj *iec104_prop);
 
 
-void iec104_initAsduDataSet(iec104_asduDataSet *DataSet, iec104_objTypeDef *DataArray, uint16_t Capacity);
-void iec104_attachAsduData(iec_104_propTypeDef *hiec, iec104_asduBlock *Data, uint16_t Capacity);
+void iec104_initAsduDataSet(IEC104_ASDU_DataSet *DataSet, IEC104_IO_Obj *DataArray, uint16_t Capacity);
+void iec104_attachAsduData(IEC104_Obj *hiec, IEC104_ASDU_Block *Data, uint16_t Capacity);
 
-uint8_t iec104_setFloat(iec_104_propTypeDef *hiec, uint8_t asduAdr, uint32_t ioAdr, float val);
-uint8_t iec104_setByte(iec_104_propTypeDef *hiec, uint8_t asduAdr, uint32_t ioAdr, uint8_t val);
-uint8_t iec104_setHalfWord(iec_104_propTypeDef *hiec, uint8_t asduAdr, uint32_t ioAdr, uint16_t val);
-void iec104_cyclic_prepare(iec_104_propTypeDef *iec104_prop);
-void iec104_sporadic_prepare(iec_104_propTypeDef *iec104_prop);
+uint8_t iec104_setFloat(IEC104_Obj *hiec, uint8_t asduAdr, uint32_t ioAdr, float val);
+uint8_t iec104_setByte(IEC104_Obj *hiec, uint8_t asduAdr, uint32_t ioAdr, uint8_t val);
+uint8_t iec104_setHalfWord(IEC104_Obj *hiec, uint8_t asduAdr, uint32_t ioAdr, uint16_t val);
+void iec104_cyclic_prepare(IEC104_Obj *iec104_prop);
+void iec104_sporadic_prepare(IEC104_Obj *iec104_prop);
 struct tm iec104_GetTime(void);
 
 
-iec104_asduBlock *iec104_GetAsduByIndex(iec_104_propTypeDef *hiec, uint8_t index);
-void iec104_SetAsduType(iec104_asduBlock *asdu, uint8_t idt);
+IEC104_ASDU_Block *iec104_GetAsduByIndex(IEC104_Obj *hiec, uint8_t index);
+void iec104_SetAsduType(IEC104_ASDU_Block *asdu, uint8_t idt);
 
 
 

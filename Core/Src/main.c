@@ -13,7 +13,7 @@
 #define ERROR_JOIN_THREAD   -12
 #define SUCCESS        0
 
-iec_104_propTypeDef iecProp;
+IEC104_Obj iecProp;
 static SOCKET client_fd;
 
 // Объект мьютекса

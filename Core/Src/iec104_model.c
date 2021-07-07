@@ -41,7 +41,7 @@ IEC104_CREATE_DATA_SET(iec104values2, 12) = {
 
 
 //----------------------------------------------
-iec104_asduBlock iec104Model[3] = {
+IEC104_ASDU_Block iec104Model[3] = {
 		{ASDU_ADR, M_SP_TB_1, &Flags},
 		{ASDU_ADR, M_ME_TF_1, &iec104values1},
 		{ASDU_ADR, M_ME_TF_1, &iec104values2}
@@ -49,9 +49,9 @@ iec104_asduBlock iec104Model[3] = {
 
 
 //----------------------------------------
-void iec104_model_init(iec_104_propTypeDef *hiec)
+void iec104_model_init(IEC104_Obj *hiec)
 {
-	memset(hiec, 0, sizeof(iec_104_propTypeDef));
+	memset(hiec, 0, sizeof(IEC104_Obj));
 	IEC104_INIT_DATA_SET(Flags);
 	IEC104_INIT_DATA_SET(iec104values1);
 	IEC104_INIT_DATA_SET(iec104values2);
@@ -72,9 +72,9 @@ struct tm iec104_GetTime(void)
 
 
 // Обработка приема команды на общий опрос станции
-void iec104_PreInrogenRepplyCallback(iec_104_propTypeDef *hiec)
+void iec104_PreInrogenRepplyCallback(IEC104_Obj *hiec)
 {
-	iec104_asduBlock *pasdu; 
+	IEC104_ASDU_Block *pasdu; 
 
 	pasdu = iec104_GetAsduByIndex(hiec, 0);
 	iec104_SetAsduType(pasdu, M_SP_NA_1);
@@ -87,9 +87,9 @@ void iec104_PreInrogenRepplyCallback(iec_104_propTypeDef *hiec)
 }
 
 // Функция получения текущего времени
-void iec104_PreSendSporadicCallback(iec_104_propTypeDef *hiec)
+void iec104_PreSendSporadicCallback(IEC104_Obj *hiec)
 {
-	iec104_asduBlock *pasdu; 
+	IEC104_ASDU_Block *pasdu; 
 
 	pasdu = iec104_GetAsduByIndex(hiec, 0);
 	iec104_SetAsduType(pasdu, M_SP_TB_1);
@@ -102,9 +102,9 @@ void iec104_PreSendSporadicCallback(iec_104_propTypeDef *hiec)
 }
 
 // Функция получения текущего времени
-void iec104_PreSendCyclicCallback(iec_104_propTypeDef *hiec)
+void iec104_PreSendCyclicCallback(IEC104_Obj *hiec)
 {
-	iec104_asduBlock *pasdu; 
+	IEC104_ASDU_Block *pasdu; 
 
 	pasdu = iec104_GetAsduByIndex(hiec, 0);
 	iec104_SetAsduType(pasdu, M_SP_NA_1);
