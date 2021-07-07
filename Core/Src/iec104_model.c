@@ -49,7 +49,7 @@ IEC104_ASDU_Block iec104Model[3] = {
 
 
 //----------------------------------------
-void iec104_model_init(IEC104_Obj *hiec)
+void IEC104_Model_Init(IEC104_Obj *hiec)
 {
 	memset(hiec, 0, sizeof(IEC104_Obj));
 	IEC104_INIT_DATA_SET(Flags);
@@ -60,7 +60,7 @@ void iec104_model_init(IEC104_Obj *hiec)
 }
 
 // Функция получения времени
-struct tm iec104_GetTime(void)
+struct tm IEC104_GetTime(void)
 {
 	time_t timer;
 	struct tm *u;
@@ -72,46 +72,46 @@ struct tm iec104_GetTime(void)
 
 
 // Обработка приема команды на общий опрос станции
-void iec104_PreInrogenRepplyCallback(IEC104_Obj *hiec)
+void IEC104_PreInrogenRepplyCallback(IEC104_Obj *hiec)
 {
 	IEC104_ASDU_Block *pasdu; 
 
-	pasdu = iec104_GetAsduByIndex(hiec, 0);
-	iec104_SetAsduType(pasdu, M_SP_NA_1);
+	pasdu = IEC104_GetAsduByIndex(hiec, 0);
+	IEC104_SetAsduType(pasdu, M_SP_NA_1);
 
-	pasdu = iec104_GetAsduByIndex(hiec, 1);
-	iec104_SetAsduType(pasdu, M_ME_NC_1);
+	pasdu = IEC104_GetAsduByIndex(hiec, 1);
+	IEC104_SetAsduType(pasdu, M_ME_NC_1);
 
-	pasdu = iec104_GetAsduByIndex(hiec, 2);
-	iec104_SetAsduType(pasdu, M_ME_NC_1);
+	pasdu = IEC104_GetAsduByIndex(hiec, 2);
+	IEC104_SetAsduType(pasdu, M_ME_NC_1);
 }
 
 // Функция получения текущего времени
-void iec104_PreSendSporadicCallback(IEC104_Obj *hiec)
+void IEC104_PreSendSporadicCallback(IEC104_Obj *hiec)
 {
 	IEC104_ASDU_Block *pasdu; 
 
-	pasdu = iec104_GetAsduByIndex(hiec, 0);
-	iec104_SetAsduType(pasdu, M_SP_TB_1);
+	pasdu = IEC104_GetAsduByIndex(hiec, 0);
+	IEC104_SetAsduType(pasdu, M_SP_TB_1);
 
-	pasdu = iec104_GetAsduByIndex(hiec, 1);
-	iec104_SetAsduType(pasdu, M_ME_TF_1);
+	pasdu = IEC104_GetAsduByIndex(hiec, 1);
+	IEC104_SetAsduType(pasdu, M_ME_TF_1);
 
-	pasdu = iec104_GetAsduByIndex(hiec, 2);
-	iec104_SetAsduType(pasdu, M_ME_TF_1);
+	pasdu = IEC104_GetAsduByIndex(hiec, 2);
+	IEC104_SetAsduType(pasdu, M_ME_TF_1);
 }
 
 // Функция получения текущего времени
-void iec104_PreSendCyclicCallback(IEC104_Obj *hiec)
+void IEC104_PreSendCyclicCallback(IEC104_Obj *hiec)
 {
 	IEC104_ASDU_Block *pasdu; 
 
-	pasdu = iec104_GetAsduByIndex(hiec, 0);
-	iec104_SetAsduType(pasdu, M_SP_NA_1);
+	pasdu = IEC104_GetAsduByIndex(hiec, 0);
+	IEC104_SetAsduType(pasdu, M_SP_NA_1);
 
-	pasdu = iec104_GetAsduByIndex(hiec, 1);
-	iec104_SetAsduType(pasdu, M_ME_NC_1);
+	pasdu = IEC104_GetAsduByIndex(hiec, 1);
+	IEC104_SetAsduType(pasdu, M_ME_NC_1);
 
-	pasdu = iec104_GetAsduByIndex(hiec, 2);
-	iec104_SetAsduType(pasdu, M_ME_NC_1);
+	pasdu = IEC104_GetAsduByIndex(hiec, 2);
+	IEC104_SetAsduType(pasdu, M_ME_NC_1);
 }

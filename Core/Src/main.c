@@ -45,9 +45,9 @@ void* iec104_handle(void *args)
         uint8_t txData[1024];
         sleep(5);
         pthread_mutex_lock(&mutex);
-        iec104_SetTxData(&iecProp, txData, sizeof(txData));
+        IEC104_SetTxData(&iecProp, txData, sizeof(txData));
 
-        iec104_sporadic_prepare(&iecProp);
+        IEC104_SporadicPacket_Prepare(&iecProp);
         int sent = send(client_fd, (char *) iecProp.TxBuf.Data, iecProp.TxBuf.Len, 0);
 
          pthread_mutex_unlock(&mutex);
@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 
     pthread_mutex_init(&mutex, NULL);
 
-    iec104_model_init(&iecProp);
+    IEC104_Model_Init(&iecProp);
 
     err = WSAStartup(MAKEWORD(2,2), &wsadata);
     if (err != 0)
@@ -126,9 +126,9 @@ int main(int argc, char *argv[])
             uint8_t txData[1024];
 
             pthread_mutex_lock(&mutex);
-            iec104_SetRxData(&iecProp, (uint8_t *) buf, read);
-            iec104_SetTxData(&iecProp, txData, sizeof(txData));
-            iec104_PacketHandler(&iecProp);
+            IEC104_SetRxData(&iecProp, (uint8_t *) buf, read);
+            IEC104_SetTxData(&iecProp, txData, sizeof(txData));
+            IEC104_PacketHandler(&iecProp);
 
             if (read == 0)
             {
@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
         while (keepLooping);
 
         closesocket(client_fd);
-        iec104_model_init(&iecProp);
+        IEC104_Model_Init(&iecProp);
         client_fd = INVALID_SOCKET;
     }
 
