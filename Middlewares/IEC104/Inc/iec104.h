@@ -23,7 +23,9 @@
 #ifndef __IEC104_H
 #define __IEC104_H
 
-#include "main.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 //-----------------------------------------------------------
 #include <string.h>
@@ -227,6 +229,8 @@ struct tm IEC104_GetTime(void);
 IEC104_ASDU_Block *IEC104_GetAsduByIndex(IEC104_Obj *hiec, uint8_t index);
 void IEC104_SetAsduType(IEC104_ASDU_Block *asdu, uint8_t idt);
 
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif	/* __IEC104_H */
