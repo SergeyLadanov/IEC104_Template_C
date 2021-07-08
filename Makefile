@@ -47,7 +47,8 @@ CPP_FILE_EXTENSION = .cpp
 C_SOURCES =  \
 Core/Src/main.c  \
 Core/Src/iec104_model.c  \
-Middlewares/IEC104/Src/iec104.c
+Middlewares/IEC104/Src/iec104.c \
+Middlewares/TCP_Server/Src/tcp_server.c
 
 # CPP sources
 CPP_SOURCES = \
@@ -96,6 +97,7 @@ AS_INCLUDES =
 C_CPP_INCLUDES =  \
 -I Core/Inc  \
 -I Middlewares/IEC104/Inc  \
+-I Middlewares/TCP_Server/Inc
 
 
 

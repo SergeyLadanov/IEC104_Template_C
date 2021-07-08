@@ -1,8 +1,13 @@
 #ifndef __TCP_SERVER_H
 #define __TCP_SERVER_H
 
-#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <winsock.h>
+#include <stdbool.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <stdint.h>
 
 typedef struct __TCP_Server
 {
@@ -12,7 +17,26 @@ typedef struct __TCP_Server
     uint16_t MaxConnections;
 } TCP_Server;
 
-bool TCP_IsConnected(SOCKET* sock);
 
+typedef struct __TCP_Client
+{
+    SOCKET Client_Fd;
+    struct sockaddr_in Client;
+    pthread_mutex_t Mutex;
+    pthread_t ReceiveTask;
+    pthread_t PollTask;
+    bool KeepLooping;
+    void *Arg;
+} TCP_Client;
+
+int TCP_Init(TCP_Server *hs, uint32_t inadr, uint16_t port);
+void TCP_Handle(TCP_Server *hs);
+
+int TCP_Client_Send(TCP_Client* hcl, uint8_t *buf, int len);
+
+void TCP_OnReceived(TCP_Client *hcl, uint8_t *buf, uint16_t length);
+void TCP_OnConnected(TCP_Client *hcl);
+void TCP_OnClosed(TCP_Client *hcl);
+void TCP_PollCon(TCP_Client *hcl);
 
 #endif
