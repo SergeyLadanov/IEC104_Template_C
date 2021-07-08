@@ -118,8 +118,6 @@ static void* TCP_Receive_Task(void *args)
     closesocket(hcl->Client_Fd);
     hcl->Client_Fd = INVALID_SOCKET;
 
-    TCP_OnClosed(hcl);
-
     printf("Receive thread was stopped\r\n");
 
     return SUCCESS;
@@ -133,11 +131,13 @@ static void* TCP_Poll_Task(void *args)
 
     while(TCP_IsConnected(&hcl->Client_Fd))
     {
-        sleep(5);
+        sleep(1);
         pthread_mutex_lock(&hcl->Mutex);
         TCP_PollCon(hcl);
         pthread_mutex_unlock(&hcl->Mutex);
     }
+
+    TCP_OnClosed(hcl);
     pthread_mutex_destroy(&hcl->Mutex);
     free(hcl);
     printf("Connection closed\r\n");

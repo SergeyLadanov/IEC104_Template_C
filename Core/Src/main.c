@@ -14,9 +14,14 @@
 #define ERROR_JOIN_THREAD   -12
 #define SUCCESS        0
 
-IEC104_Obj iecProp;
-
 TCP_Server tcp_pcb;
+
+// Вспомогательная структура
+typedef struct __IEC_Con
+{
+    IEC104_Obj *IecProp;
+    uint32_t DelayCnt;
+} IEC_Con;
 
 
 // Обрабтка ошибки
@@ -31,33 +36,59 @@ static void on_error(char *s, int *errCode)
 // Прием TCP пакета
 void TCP_OnReceived(TCP_Client *hcl, uint8_t *buf, uint16_t length)
 {
+    IEC_Con *hcon = (IEC_Con *) hcl->Arg;
     uint8_t txData[1024];
-    IEC104_SetRxData(&iecProp, (uint8_t *) buf, length);
-    IEC104_SetTxData(&iecProp, txData, sizeof(txData));
-    IEC104_PacketHandler(&iecProp);
-    TCP_Client_Send(hcl, iecProp.TxBuf.Data, iecProp.TxBuf.Len);
+    IEC104_SetRxData(hcon->IecProp, (uint8_t *) buf, length);
+    IEC104_SetTxData(hcon->IecProp, txData, sizeof(txData));
+    IEC104_PacketHandler(hcon->IecProp);
+    TCP_Client_Send(hcl, hcon->IecProp->TxBuf.Data, hcon->IecProp->TxBuf.Len);
 }
 
 
 // Подключен новый клиент
 void TCP_OnConnected(TCP_Client *hcl)
 {
+    IEC_Con *hcon = malloc(sizeof(IEC_Con));
+    
+    if (hcon == NULL)
+    {
+        printf("Error of iec104 memory allocation");
+    }
 
+    hcon->DelayCnt = 0;
+
+    hcon->IecProp = malloc(sizeof(IEC104_Obj));
+
+    if (hcon->IecProp == NULL)
+    {
+        printf("Error of iec104 memory allocation");
+    }
+    IEC104_Model_Init(hcon->IecProp);
+    hcl->Arg = hcon;
 }
 
 // Закрытие соединения
 void TCP_OnClosed(TCP_Client *hcl)
 {
-
+    IEC_Con *hcon = (IEC_Con *) hcl->Arg;
+    IEC104_Model_Init(hcon->IecProp);
+    free(hcon);
 }
 
 // Периодическая функция обработки соединения
 void TCP_PollCon(TCP_Client *hcl)
 {
-    uint8_t txData[1024];
-    IEC104_SetTxData(&iecProp, txData, sizeof(txData));
-    IEC104_SporadicPacket_Prepare(&iecProp);
-    TCP_Client_Send(hcl, iecProp.TxBuf.Data, iecProp.TxBuf.Len);
+    IEC_Con *hcon = (IEC_Con *) hcl->Arg;
+
+    if (hcon->DelayCnt++ > 5)
+    {
+        uint8_t txData[1024];
+        IEC104_SetTxData(hcon->IecProp, txData, sizeof(txData));
+        IEC104_SporadicPacket_Prepare(hcon->IecProp);
+        TCP_Client_Send(hcl, hcon->IecProp->TxBuf.Data, hcon->IecProp->TxBuf.Len);
+        hcon->DelayCnt = 0;
+    }
+
 }
 
 // Основная программа
@@ -65,8 +96,6 @@ int main(int argc, char *argv[])
 {
     WSADATA wsadata; 
     int port = 2404, err; 
-
-    IEC104_Model_Init(&iecProp);
 
     err = WSAStartup(MAKEWORD(2,2), &wsadata);
     if (err != 0)
