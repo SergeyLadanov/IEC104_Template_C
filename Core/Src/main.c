@@ -59,6 +59,10 @@ void TCP_OnConnected(TCP_Client *hcl)
         printf("Error of iec104 memory allocation");
     }
     IEC104_Model_Init(hcon->IecProp);
+
+    // Пример записи значения в модель IEC104
+    IEC104_SetFloat(hcon->IecProp, 1, 8204, 0.1234f);
+    
     hcl->Arg = hcon;
 }
 
