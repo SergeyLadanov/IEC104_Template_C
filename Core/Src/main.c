@@ -8,12 +8,7 @@
 #include <unistd.h>
 #include "tcp_server.h"
 
-#define BUFFER_SIZE 1024
-
-#define ERROR_CREATE_THREAD -11
-#define ERROR_JOIN_THREAD   -12
-#define SUCCESS        0
-
+// Объект TCP сервера
 TCP_Server tcp_pcb;
 
 // Вспомогательная структура
