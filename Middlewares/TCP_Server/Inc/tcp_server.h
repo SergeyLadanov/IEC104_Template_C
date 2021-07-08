@@ -15,6 +15,8 @@ typedef struct __TCP_Server
     struct sockaddr_in Server, Client;
     uint16_t ConNum;
     uint16_t MaxConnections;
+    pthread_t Task;
+    bool Active;
 } TCP_Server;
 
 
@@ -30,7 +32,7 @@ typedef struct __TCP_Client
 } TCP_Client;
 
 int TCP_Init(TCP_Server *hs, uint32_t inadr, uint16_t port);
-void TCP_Handle(TCP_Server *hs);
+int TCP_Start(TCP_Server *hs);
 
 int TCP_Client_Send(TCP_Client* hcl, uint8_t *buf, int len);
 

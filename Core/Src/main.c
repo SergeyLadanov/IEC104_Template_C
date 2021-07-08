@@ -58,11 +58,9 @@ void TCP_OnConnected(TCP_Client *hcl)
     {
         printf("Error of iec104 memory allocation");
     }
+
     IEC104_Model_Init(hcon->IecProp);
 
-    // Пример записи значения в модель IEC104
-    IEC104_SetFloat(hcon->IecProp, 1, 8204, 0.1234f);
-    
     hcl->Arg = hcon;
 }
 
@@ -82,6 +80,18 @@ void TCP_PollCon(TCP_Client *hcl)
     if (hcon->DelayCnt++ > 5)
     {
         uint8_t txData[1024];
+
+        // Пример записи значения в модель IEC104
+        IEC104_SetFloat(hcon->IecProp, 1, 8204, 0.1f);
+        IEC104_SetFloat(hcon->IecProp, 1, 8205, 0.2f);
+        IEC104_SetFloat(hcon->IecProp, 1, 8206, 0.3f);
+        IEC104_SetFloat(hcon->IecProp, 1, 8207, 0.4f);
+
+        IEC104_SetFloat(hcon->IecProp, 1, 8192, 0.5f);
+        IEC104_SetFloat(hcon->IecProp, 1, 8193, 0.6f);
+        IEC104_SetFloat(hcon->IecProp, 1, 8194, 0.7f);
+        IEC104_SetFloat(hcon->IecProp, 1, 8195, 0.8f);
+
         IEC104_SetTxData(hcon->IecProp, txData, sizeof(txData));
         IEC104_SporadicPacket_Prepare(hcon->IecProp);
         TCP_Client_Send(hcl, hcon->IecProp->TxBuf.Data, hcon->IecProp->TxBuf.Len);
@@ -101,10 +111,11 @@ int main(int argc, char *argv[])
         on_error("Errore in WSAStartup", &err);
 
     TCP_Init(&tcp_pcb, INADDR_ANY, port);
+    TCP_Start(&tcp_pcb);
 
     while (1)
     {
-        TCP_Handle(&tcp_pcb);
+        
     }
 
     WSACleanup();

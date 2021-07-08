@@ -174,7 +174,7 @@ int TCP_Init(TCP_Server *hs, uint32_t inadr, uint16_t port)
 
 
 // Обработка сервера
-void TCP_Handle(TCP_Server *hs)
+static void TCP_Handle(TCP_Server *hs)
 {
     int client_len = sizeof(struct sockaddr_in);
     TCP_Client *hcl = malloc(sizeof(TCP_Client));
@@ -208,7 +208,29 @@ void TCP_Handle(TCP_Server *hs)
         exit(ERROR_CREATE_THREAD);
     }
 
-    TCP_OnConnected(hcl);
-
-    
+    TCP_OnConnected(hcl);   
 }
+
+// Задача приема TCP соединений
+static void* TCP_Accept_Task(void *args)
+{
+    TCP_Server *hs = (TCP_Server *) args;
+
+    while (hs->Active)
+    {
+        TCP_Handle(args);
+    }
+
+    return SUCCESS;
+}
+
+// Запуск TCP сервера
+int TCP_Start(TCP_Server *hs)
+{
+    int status;
+    hs->Active = true;
+    status = pthread_create(&hs->Task, NULL, TCP_Accept_Task, hs);
+    return status;
+}
+
+
