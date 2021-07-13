@@ -129,7 +129,12 @@ CPP_FLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 LDSCRIPT = 
 
 # libraries
-LIBS = -lws2_32 -lwsock32 -lpthread
+ifeq ($(OS),Windows_NT)
+	LIBS = -lws2_32 -lwsock32 -lpthread
+else
+	LIBS = -lpthread
+endif	
+
 LIBDIR = 
 LDFLAGS = $(LIBDIR) $(LIBS)
 
@@ -168,13 +173,21 @@ endif
 	
 	
 $(BUILD_DIR):
-	mkdir $@		
+	mkdir $@	
+
+
 
 #######################################
 # clean up
 #######################################
 clean:
+ifeq ($(OS),Windows_NT)
 	RMDIR /S /Q $(BUILD_DIR)
+else
+	rm -r $(BUILD_DIR)
+endif	
+
+
   
 #######################################
 # dependencies

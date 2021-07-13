@@ -54,17 +54,20 @@ static bool TCP_IsConnected(SOCKET* sock)
 // Функция отправки данных
 int TCP_Client_Send(TCP_Client* hcl, uint8_t *buf, int len)
 {
-    char *pbuf = buf;
+    char *pbuf = (char *) buf;
+    #if defined(_WIN32) || defined(_WIN64)
     int err;
+    #endif
     do
     {
         int sent = send(hcl->Client_Fd, (char *) buf, len, 0);
         if (sent == SOCKET_ERROR)
         {
+            #if defined(_WIN32) || defined(_WIN64)
             err = WSAGetLastError();
             if ((err != WSAENOTCONN) && (err != WSAECONNABORTED) && (err == WSAECONNRESET))
                 printf("Errore nella scrittura verso il client");
-
+            #endif
             hcl->KeepLooping = false;
             break;
         }
@@ -81,7 +84,9 @@ static void* TCP_Receive_Task(void *args)
 {
     TCP_Client *hcl = (TCP_Client *) args;
     char buf[BUFFER_SIZE];
+    #if defined(_WIN32) || defined(_WIN64)
     int err;
+    #endif
     hcl->KeepLooping = true;
 
     printf("Receive thread was started\r\n");
@@ -102,9 +107,11 @@ static void* TCP_Receive_Task(void *args)
 
         if (read == SOCKET_ERROR)
         {
+            #if defined(_WIN32) || defined(_WIN64)
             err = WSAGetLastError();
             if ((err != WSAENOTCONN) && (err != WSAECONNABORTED) && (err == WSAECONNRESET))
                 printf("Errore nella lettura dal client");
+            #endif
             break;
         }
 
@@ -114,8 +121,11 @@ static void* TCP_Receive_Task(void *args)
         pthread_mutex_unlock(&hcl->Mutex);
     }
     while (hcl->KeepLooping);
-
+    #if defined(_WIN32) || defined(_WIN64)//Windows includes
     closesocket(hcl->Client_Fd);
+    #else
+    close(hcl->Client_Fd);
+    #endif
     hcl->Client_Fd = INVALID_SOCKET;
 
     printf("Receive thread was stopped\r\n");
@@ -160,7 +170,7 @@ int TCP_Init(TCP_Server *hs, uint32_t inadr, uint16_t port)
     hs->Server.sin_addr.s_addr = inadr; 
 
         /** bind & listen **/
-    const BOOL opt_val = TRUE;
+    const bool opt_val = true;
     setsockopt(hs->Server_Fd, SOL_SOCKET, SO_REUSEADDR, (char*)&opt_val, sizeof(opt_val));
     err = bind(hs->Server_Fd, (struct sockaddr *) &hs->Server, sizeof(hs->Server));
     if (err == SOCKET_ERROR)
@@ -187,7 +197,7 @@ static void TCP_Handle(TCP_Server *hs)
 
     pthread_mutex_init(&hcl->Mutex, NULL);
 
-    hcl->Client_Fd = accept(hs->Server_Fd, (struct sockaddr *) &hcl->Client, &client_len);
+    hcl->Client_Fd = accept(hs->Server_Fd, (struct sockaddr *) &hcl->Client, (socklen_t *) &client_len);
 
     if (hcl->Client_Fd == INVALID_SOCKET)
         return;
