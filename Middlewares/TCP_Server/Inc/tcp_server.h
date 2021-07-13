@@ -21,8 +21,8 @@
 #define INVALID_SOCKET (-1)
 #define SOCKET int
 #define SOCKET_ERROR (-1)
-// #define WSAENOTCONN (10057)
-// #define WSAECONNABORTED (10053)
+#else
+typedef int socklen_t;
 #endif
 
 typedef struct __TCP_Server

@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <winsock.h>
 #include <stdbool.h>
 #include "iec104.h"
 #include "iec104_model.h"
@@ -18,7 +17,7 @@ typedef struct __IEC_Con
     uint32_t DelayCnt;
 } IEC_Con;
 
-
+#if defined(_WIN32) || defined(_WIN64)
 // Обрабтка ошибки
 static void on_error(char *s, int *errCode)
 {
@@ -26,6 +25,7 @@ static void on_error(char *s, int *errCode)
     printf("%s: %d\n", s, err);
     exit(1);
 }
+#endif
 
 
 // Прием TCP пакета
@@ -103,12 +103,19 @@ void TCP_PollCon(TCP_Client *hcl)
 // Основная программа
 int main(int argc, char *argv[])
 {
+    #if defined(_WIN32) || defined(_WIN64)
     WSADATA wsadata; 
-    int port = 2404, err; 
+    int err;
+    #endif
 
+    int port = 2404; 
+
+    #if defined(_WIN32) || defined(_WIN64)
     err = WSAStartup(MAKEWORD(2,2), &wsadata);
     if (err != 0)
         on_error("Errore in WSAStartup", &err);
+
+    #endif
 
     TCP_Init(&tcp_pcb, INADDR_ANY, port);
     TCP_Start(&tcp_pcb);
@@ -118,6 +125,8 @@ int main(int argc, char *argv[])
         
     }
 
+    #if defined(_WIN32) || defined(_WIN64)
     WSACleanup();
+    #endif
     return 0;
 }
