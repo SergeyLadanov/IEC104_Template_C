@@ -35,6 +35,5 @@ jobs:
               with:
                   repo_token: ${{ secrets.GITHUB_TOKEN }}
                   file: Bin/${{ matrix.artifact_name }}
-                  if: matrix.os == 'windows-latest'
                   asset_name: ${{ matrix.asset_name }}
                   tag: ${{ github.ref }}
