@@ -14,8 +14,10 @@ jobs:
                 include:
                     - os: ubuntu-latest
                       artifact_name: IEC104_Slave
+                      asset_name: IEC104_Slave_Linux_amd64
                     - os: windows-latest
                       artifact_name: IEC104_Slave.exe
+                      asset_name: IEC104_Slave_Windows_amd64.exe
 
         steps:
             - uses: actions/checkout@v2
