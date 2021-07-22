@@ -14,10 +14,10 @@ jobs:
                 include:
                     - os: ubuntu-latest
                       artifact_name: IEC104_Slave
-                      asset_name: IEC104_Slave_Linux_amd64
+                      asset_name: IEC104_Slave_Linux_amd64_$tag
                     - os: windows-latest
                       artifact_name: IEC104_Slave.exe
-                      asset_name: IEC104_Slave_Windows_amd64.exe
+                      asset_name: IEC104_Slave_Windows_amd64_$tag.exe
 
         steps:
             - uses: actions/checkout@v2
@@ -35,5 +35,6 @@ jobs:
               with:
                   repo_token: ${{ secrets.GITHUB_TOKEN }}
                   file: Bin/${{ matrix.artifact_name }}
-                  asset_name: ${{ matrix.asset_name }}_$tag
+                  if: matrix.os == 'windows-latest'
+                  asset_name: ${{ matrix.asset_name }}
                   tag: ${{ github.ref }}
