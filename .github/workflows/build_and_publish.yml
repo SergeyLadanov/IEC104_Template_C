@@ -17,7 +17,7 @@ jobs:
                       asset_name: IEC104_Slave_Linux_amd64
                     - os: windows-latest
                       artifact_name: IEC104_Slave.exe
-                      asset_name: IEC104_Slave_Windows_amd64.exe
+                      asset_name: IEC104_Slave_Windows_amd64
 
         steps:
             - uses: actions/checkout@v2
@@ -35,5 +35,5 @@ jobs:
               with:
                   repo_token: ${{ secrets.GITHUB_TOKEN }}
                   file: Bin/${{ matrix.artifact_name }}
-                  asset_name: ${{ matrix.asset_name }}_${{ github.ref }}
+                  asset_name: ${{ matrix.asset_name }}_${GITHUB_REF##*/}
                   tag: ${{ github.ref }}
