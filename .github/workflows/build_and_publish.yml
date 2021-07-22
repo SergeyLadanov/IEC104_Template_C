@@ -13,9 +13,9 @@ jobs:
             matrix:
                 include:
                     - os: ubuntu-latest
-                      artifact_name: MakeTemplate
+                      artifact_name: IEC104_Slave
                     - os: windows-latest
-                      artifact_name: MakeTemplate.exe
+                      artifact_name: IEC104_Slave.exe
 
         steps:
             - uses: actions/checkout@v2
